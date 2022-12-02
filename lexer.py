@@ -1,5 +1,6 @@
 import ply.lex as lex
 
+# Keywords
 reserved = {
    'time' : 'TIME',
    'location' : 'LOCATION',
@@ -13,12 +14,6 @@ tokens = (
    'STRING',
    'DATE',
 
-   #'TIME',
-   #'LOCATION'
-   #'ALL'
-
-   #'FILTER',
-   #'BY',
    'PLUS',
    'MULTIPLY',
    'DIFFER',
@@ -33,26 +28,13 @@ tokens = (
 )
 
 
-
 # Regular expression rules for simple tokens
-
-
 t_STRING= r'"\w*"'
 
-t_DATE= r'\d\d?-\d\d?-\d\d\d\d'  #DUDA: Desde aqui lo convierto en Date de Python? Como hacen con numeros en ejemplo
-
-#t_TIME= r'time'
-#t_LOCATION= r'location'
-#t_ALL = r'ALL'
-
-#t_FILTER= r'filter'
-#t_BY= r'by'
-
+t_DATE= r'((\d\d?-)?\d\d?-)?\d{4}' #DUDA: Desde aqui lo convierto en Date de Python? Como hacen con numeros en ejemplo
 t_PLUS    = r'\+'
 t_MULTIPLY= r'\*'
 t_DIFFER  = r'\\'
-
-
 
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
@@ -83,23 +65,17 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1) 
 
-# Compute column.
-#     input is the input text string
-#     token is a token instance
+
 def find_column(input, token):
+    '''
+        Compute column.
+        Input is the input text string.
+        Token is a token instance.
+    '''
+    
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 tokens= list(reserved.values()) + list(tokens)
 
-
 lexer = lex.lex()
-
-data = '''
-
-'''
-
-lexer.input(data)
-
-for tok in lexer:
-    print(tok)
