@@ -46,7 +46,7 @@ def get_collection(collection_name : str) -> List[str]:
 
 def filter(set, *filters):
     """
-    Returns a new set filtered by filters
+    Returns a new set filtered by filters.
     """
     pass
 
