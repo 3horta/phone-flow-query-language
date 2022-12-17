@@ -23,7 +23,8 @@ tokens = (
    'LPAREN',
    'RPAREN',
    'EQUAL',
-   'COMMA'
+   'COMMA',
+   'END'
    
 )
 
@@ -40,6 +41,7 @@ t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_EQUAL= r'='
 t_COMMA= r','
+t_END= r';'
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
