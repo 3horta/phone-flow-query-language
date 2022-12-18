@@ -1,5 +1,6 @@
 from ply.yacc import yacc
 from lexer import *
+from abstract_syntax_tree import *
 
 # -----------------------------------------------------------------------------
 #   Grammar
@@ -25,7 +26,7 @@ def p_filter(p):
     #  Program : filter ALL  by    Predicate_list ;
     #   p[0]   : p[1]   p[2] p[3]  p[4]           p[5]
     # 
-    p[0] = ('filterop', p[1], p[2], p[4])
+    p[0] = FilterOp(p[1], p[2], p[4]) # ('filterop', p[1], p[2], p[4])
 
 def p_predicate_list(p):
     '''
@@ -33,9 +34,9 @@ def p_predicate_list(p):
                    | Predicate
     '''
     if (len(p) == 4):
-        p[0] = [('predicate', p[1])] + p[3]
+        p[0] = [Predicate(p[1])].extend(p[3]) # [('predicate', p[1])] + p[3]
     elif (len(p) == 2):
-        p[0] = [('predicate', p[1])]
+        p[0] = [Predicate(p[1])]
     pass
 
 def p_predicate(p):
@@ -44,9 +45,9 @@ def p_predicate(p):
                | LOCATION LPAREN STRING RPAREN
     '''
     if(p[1] == 'time'):
-        p[0]= ('time_pred', p[3], p[5])
+        p[0]= TimePredicate('time_pred', p[3], p[5])
     elif p[1] =='location':
-        p[0]= ('location_pred', p[3], p[5])
+        p[0]= LocationPredicate('location_pred', p[3])
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
