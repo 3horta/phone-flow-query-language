@@ -38,7 +38,7 @@ def get_towers(location : str) -> List[str]:
     """
     pass
 
-def get_collection(collection_name : str) -> List[str]:
+def get_collection(collection_name : str) -> List[str]: #need to define how to load collections from language
     """
     Returns collection.
     """
