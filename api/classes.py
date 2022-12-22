@@ -1,6 +1,6 @@
 from pyspark.sql.types import *
 from os import times
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
@@ -46,7 +46,7 @@ class Packet:
         #Devolver dia y hora
 
 
-def __towers_location_dataframes() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def __towers_location_dataframes() -> Dict:
     """Returns id = region dictionary"""
     municipality_df = pd.read_csv("api/municipios_tower.csv", engine="pyarrow")
     health_areas_df = pd.read_csv("api/as_havana_tower.csv", engine="pyarrow")

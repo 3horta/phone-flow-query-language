@@ -11,15 +11,18 @@ import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
+from classes import __towers_location_dataframes
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 
+ID_REGION = __towers_location_dataframes()
 
 def get_tower_by_region(location : str) -> List[str]:
-    """
-    Returns towers list.
-    """
-    pass
+    towers_id = []
+    for i in ID_REGION.keys():
+        if(ID_REGION[i] == location):
+            towers_id.append(i)
+    return towers_id
 
 def get_collection(collection_name : str) -> List[str]:
     """
@@ -65,4 +68,5 @@ def charge_data(path):
     print_data_parquet(path)
 
 charge_data("api/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
+get_tower_by_region("Arroyo Naranjo-La H")
 #endregion
