@@ -1,38 +1,21 @@
+from os import times
 from typing import List, Tuple
 import pandas as pd
 import datetime as dt
+from pyspark import *
+import pyspark as spark
+from pyspark.sql import SQLContext
+from pyspark.sql.types import *
+from pyspark.sql.types import *
+import pyarrow.parquet as pq
+from pyspark.sql import SparkSession
+import regex as re
+from tomlkit import string
 
-#region classes
-
-class Time:
-    def __init__(self, beginning_time : dt.datetime, ending_time : dt.datetime = None) -> None:
-        """
-        Initializes a time interval given datetimes limits.
-        """
-        self.interval = self.__fill_interval(beginning_time, ending_time)
-        self.time = self.interval.length
-    
-    def __fill_interval(self, beginning_time : dt.datetime, ending_time : dt.datetime):
-        """
-        Fills time interval limits.
-        """
-        if ending_time != None:
-            interval = pd.Interval(pd.Timestamp(beginning_time), pd.Timestamp(ending_time), closed = 'both')
-        else :
-            ending_time = dt.datetime(beginning_time.year, beginning_time.month, beginning_time.day) + dt.timedelta(days = 1)
-            interval = pd.Interval(pd.Timestamp(beginning_time), pd.Timestamp(ending_time), closed = 'left')
-        return interval
-
-#endregion
+spark = SparkSession.builder.appName('pfql').getOrCreate() 
 
 
-def __towers_location_dataframes() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Returns towers location(s) dataframes."""
-    municipality_df = pd.read_csv("data/municipios_tower.csv", engine="pyarrow")
-    health_areas_df = pd.read_csv("data/as_havana_tower.csv", engine="pyarrow")
-    return municipality_df, health_areas_df
-
-def get_towers(location : str) -> List[str]:
+def get_tower_by_region(location : str) -> List[str]:
     """
     Returns towers list.
     """
@@ -70,7 +53,16 @@ def difference(A, B):
     Returns two sets difference. (parameters order)
     """
     pass
+def print_data_parquet(path):
+    spark.sql(f"CREATE TEMPORARY VIEW REGISTER USING parquet OPTIONS (path \"{path}\")")
+    spark.sql("SELECT * FROM REGISTER").show()
 
+def charge_data(path):
+    regDF=spark.read.parquet(path)
+
+    regDF.select("cell_ids").show()
+    print(regDF)
+    print_data_parquet(path)
+
+charge_data("api/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
 #endregion
-
-
