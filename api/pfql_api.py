@@ -18,11 +18,12 @@ spark = SparkSession.builder.appName('pfql').getOrCreate()
 ID_REGION = __towers_location_dataframes()
 
 def get_tower_by_region(location : str) -> List[str]:
-    towers_id = []
-    for i in ID_REGION.keys():
-        if(ID_REGION[i] == location):
-            towers_id.append(i)
-    return towers_id
+    cells = []
+    for id in ID_REGION.keys():
+        if(ID_REGION[id] == location):
+            cells.append(id)
+    print(cells)
+    return cells
 
 def get_collection(collection_name : str) -> List[str]:
     """
@@ -68,5 +69,5 @@ def charge_data(path):
     print_data_parquet(path)
 
 charge_data("api/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
-get_tower_by_region("Arroyo Naranjo-La H")
+get_tower_by_region("Boyeros-La H")
 #endregion

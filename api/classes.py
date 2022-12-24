@@ -7,6 +7,8 @@ import regex as re
 from tomlkit import string
 import pandas as pd
 import datetime as dt
+import tarfile
+from utils import charge_all_parquets_from_folder
 
 
 #region classes
@@ -39,7 +41,7 @@ class Packet:
 
     def _get_time(path: string):
         date_regex = re.compile(r'\d*-\d*-\d*')
-        date = hour_regex.search(path)
+        date = date_regex.search(path)
         hour_regex = re.compile(r'\d\d\d\d\d')
         h = hour_regex.search(path)
         hour = h[3] + h[4] + ":00:00"
@@ -47,18 +49,49 @@ class Packet:
 
 
 def __towers_location_dataframes() -> Dict:
-    """Returns id = region dictionary"""
+    """Returns the relation between cells id and regions"""
+
+    #Charge regions
     municipality_df = pd.read_csv("api/municipios_tower.csv", engine="pyarrow")
     health_areas_df = pd.read_csv("api/as_havana_tower.csv", engine="pyarrow")
     municipality_df.sort_values(by=['percent'], ascending=False)
-    id_region = {}
+
+    towid_region = {}
     for i in range(len(municipality_df)):
         id = municipality_df["id"]
         reg = municipality_df["category"]
-        id_region[id[i]] = reg[i]
-    print(id_region)
+        towid_region[id[i]] = reg[i]
+
+    cellid_towid = {}
+    local_path = "api/cell_area/"
+    files = charge_all_parquets_from_folder(local_path)
+    print(files)
+    for file in files:
+        print(local_path + file)
+        id_regions_from_one_parquet(local_path + file, cellid_towid)
+    
+    
+    
+    cellid_region = {}
+    for i in cellid_towid.keys():
+        try:
+            cellid_region[i] = towid_region[cellid_towid[i]]
+        except:
+            continue
+
+    print(cellid_region)
+
+    return cellid_region
 
 
-    return id_region
+def id_regions_from_one_parquet(path, cellid_towid):
+    print(path)
+    regDF=spark.read.parquet(f"{path}")
+    idn = regDF.select("id")
+    ida = regDF.select("area_correlator")
+    regDF=spark.read.parquet(path)
+    for row in regDF.collect():    
+        cellid_towid[row["id"]] = row["area_correlator"]
+    print("OVER")
 
 __towers_location_dataframes()
