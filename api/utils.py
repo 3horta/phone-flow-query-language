@@ -25,6 +25,6 @@ def charge_all_parquets_from_folder(path):
     return parquets
 
 
-def print_data_parquet(path):
-    spark.sql(f"CREATE TEMPORARY VIEW REGISTER USING parquet OPTIONS (path \"{path}\")")
-    spark.sql("SELECT * FROM REGISTER").show()
+def print_data_parquet(path, name):
+    spark.sql(f"CREATE TEMPORARY VIEW {name} USING parquet OPTIONS (path \"{path}\")")
+    spark.sql(f"SELECT * FROM {name}").show()
