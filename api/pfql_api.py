@@ -11,7 +11,7 @@ import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
-from classes import __towers_location_dataframes
+from auxiliar_filter_methods import __towers_location_dataframes
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 
@@ -57,17 +57,13 @@ def difference(A, B):
     Returns two sets difference. (parameters order)
     """
     pass
-def print_data_parquet(path):
-    spark.sql(f"CREATE TEMPORARY VIEW REGISTER USING parquet OPTIONS (path \"{path}\")")
-    spark.sql("SELECT * FROM REGISTER").show()
+
 
 def charge_data(path):
+
     regDF=spark.read.parquet(path)
-
-    regDF.select("cell_ids").show()
     print(regDF)
-    print_data_parquet(path)
 
-charge_data("api/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
+#charge_data("api/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
 get_tower_by_region("Boyeros-La H")
 #endregion

@@ -1,7 +1,10 @@
 import os
 from re import S 
 import regex as re
+import pyspark as spark
+from pyspark.sql import SparkSession
 
+spark = SparkSession.builder.appName('pfql_utils').getOrCreate() 
 
 def charge_all_parquets_from_folder(path):
     #path -> path to the folder where the parquets are
@@ -22,6 +25,6 @@ def charge_all_parquets_from_folder(path):
     return parquets
 
 
-
-
-charge_all_parquets_from_folder("api/cell_area/")
+def print_data_parquet(path):
+    spark.sql(f"CREATE TEMPORARY VIEW REGISTER USING parquet OPTIONS (path \"{path}\")")
+    spark.sql("SELECT * FROM REGISTER").show()
