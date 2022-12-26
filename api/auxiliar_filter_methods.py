@@ -72,11 +72,18 @@ def id_regions_from_one_parquet(path, cellid_towid):
 ############################ DATE FILTER AUXILIAR ##########################################
 
 def date_difference(start_date: string, end_date: string):
-    start = datetime.strptime(start_date, "%Y-%m-%d")
-    end = datetime.strptime(end_date, "%Y-%m-%d")
-    difference = end - start
-    date_list = [(start + timedelta(days=d)).strftime("%Y-%m-%d")
+    date_list = []
+    if start_date == "": 
+        date_list.append(end_date)
+
+    elif end_date == "":
+        date_list.append(start_date)
+
+    else:
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        difference = end - start
+
+        date_list = [(start + timedelta(days=d)).strftime("%Y-%m-%d")
                     for d in range(difference.days + 1)] 
     return date_list
-
-__towers_location_dataframes()

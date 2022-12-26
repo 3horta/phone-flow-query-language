@@ -20,6 +20,8 @@ spark = SparkSession.builder.appName('pfql').getOrCreate()
 
 ID_REGION = __towers_location_dataframes()
 
+######################################## Region filter ##################################################
+
 def get_tower_by_province(data: df, location : str) -> List[str]:
 
     new_dataDF = preprocess_paquets(data)
@@ -45,32 +47,14 @@ def get_tower_by_municipality(data: df, location : str) -> List[str]:
     return filtered_data
 
 
+######################################## Date-Time filter ################################################
 
 # time -> year - month - day
-def filter_by_date(date):
-    main_path = 'Data/1/'
-    filtered_path = []
-    files_by_month = list(os.listdir(main_path))
-    for file in files_by_month:
-        if file == date:
-            parquets = charge_all_parquets_from_folder(main_path + file)
-
-    count = 0
-    for parquet in parquets:
-        filtered_path.append(main_path + file + "/" + parquet)
-        #For visualization
-        count += 1
-        print_data_parquet(main_path + file + "/" + parquet, f"REGISTER{count}")
-        
-    print(filtered_path)
-    return filtered_path
-
-
-# time -> year - month - day
-def filter_by_date(star_date, end_date):
+def filter_by_date(star_date = "", end_date = ""):
     date_list = date_difference(star_date, end_date)
+    date_filteredDF = pd.DataFrame()
+    # It will filter all at Data folder
     main_path = 'Data/1/'
-    filtered_path = []
     parquets = []
     folders = list(os.listdir(main_path))
     print(folders)
@@ -78,17 +62,16 @@ def filter_by_date(star_date, end_date):
     for folder in folders:
         for d in date_list:
             if folder == d :
-                parquets.extend(charge_all_parquets_from_folder(main_path + folder))
+                parquets = charge_all_parquets_from_folder(main_path + folder)
+                for parquet in parquets:
+                    regDF = spark.read.parquet(f"{main_path}{folder}/{parquet}").toPandas()
+                    date_filteredDF = pd.concat((date_filteredDF, regDF))
 
-    count = 0
-    for parquet in parquets:
-        filtered_path.append(main_path + folder + "/" + parquet)
-        #For visualization
-        count += 1
-        print_data_parquet(main_path + folder + "/" + parquet, f"REGISTER{count}")
+    
+    
+    print(date_filteredDF)
         
-    print(filtered_path)
-    return filtered_path
+    return date_filteredDF
 
 
 def get_collection(collection_name : str) -> List[str]:
@@ -131,7 +114,7 @@ def charge_data(path):
     print(regDF)
 
 d = charge_data("Data/1/2021-03-01/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
-get_tower_by_municipality(d, "Playa")
+#get_tower_by_municipality(d, "Playa")
 #preprocess_data(d)
-#filter_by_date("2021-03-01", "2022-04-03")
+filter_by_date("2021-03-01")
 #endregion
