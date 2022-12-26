@@ -5,28 +5,97 @@ from abstract_syntax_tree import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program        : filter ALL by Predicate_list ;
-#   
-#   Predicate_list : Predicate, Predicate_list 
-#                  | Predicate 
+#   Program          : group Register_set by Collection_list; 
+#                    | users ( Register_set ) ;
+#                    | towers ( Register_set ) ; 
+#                    | count ( Register_set ) ; 
+#                    | Register_set ;
+# 
+#   Register_set     : ALL 
+#                    | filter Register_set by Predicate_list
 #
-#   Predicate      : time ( date , date )
-#                  | location ( string )
+#   Collection_list  : Collection, Collection_list
+#                    | Collection
+# 
+#   Collection       : { provinces }
+#                    | { municipalities }
+# 
+#   Predicate_list   : Predicate, Predicate_list 
+#                    | Predicate 
+#
+#   Predicate        : time ( date , date )
+#                    | location ( string )
 #
 # -----------------------------------------------------------------------------
 
 # Write functions for each grammar rule which is
 # specified in the docstring.
+def p_group(p):
+    '''
+    Program : GROUP Register_set BY Collection_list END
+    '''
+    p[0] = GroupOp(p[2], p[4])
+    
+def p_users(p):
+    '''
+    Program : USER LPAREN Register_set RPAREN END
+    '''
+    p[0] = Users(p[3])
+
+def p_towers(p):
+    '''
+    Program : TOWER LPAREN Register_set RPAREN END
+    '''
+    p[0] = Towers(p[3])
+    
+def p_count(p):
+    '''
+    Program : COUNT LPAREN Register_set RPAREN END
+    '''
+    p[0] = Count(p[3])
+
+def p_program_register_set(p):
+    '''
+    Program : Register_set END
+    '''
+    p[0] = p[1]
+    
+def p_all(p):
+    '''
+    Register_set : ALL
+    '''
+    p[0] = AllRegisters()
+
 def p_filter(p):
     '''
-    Program : FILTER ALL BY Predicate_list END
+    Register_set : FILTER ALL BY Predicate_list
     '''
     # p is a sequence that represents rule contents.
     #
-    #  Program : filter ALL  by    Predicate_list ;
-    #   p[0]   : p[1]   p[2] p[3]  p[4]           p[5]
+    #  Register_set : filter  ALL     by    Predicate_list
+    #      p[0]     :  p[1]   p[2]   p[3]      p[4]
     # 
-    p[0] = FilterOp(p[1], p[2], p[4]) # ('filterop', p[1], p[2], p[4])
+    p[0] = FilterOp(p[2], p[4])
+    
+def p_collection_list(p):
+    '''
+    Collection_list : Collection COMMA Collection_list
+                    | Collection
+    '''
+    if (len(p) == 4):
+        p[0] = [p[1]].extend(p[3])
+    elif (len(p) == 2):
+        p[0] = [p[1]]
+        
+def p_collection(p):
+    '''
+    Collection  : LBRACE PROV RBRACE
+                | LBRACE MUN RBRACE
+    '''
+    if(p[2] == 'PROVINCES'):
+        p[0]= ProvincesCollection()
+    elif p[2] =='MUNICIPALITIES':
+        p[0]= MunicipalitiesCollection()
 
 def p_predicate_list(p):
     '''
@@ -34,10 +103,9 @@ def p_predicate_list(p):
                    | Predicate
     '''
     if (len(p) == 4):
-        p[0] = [Predicate(p[1])].extend(p[3]) # [('predicate', p[1])] + p[3]
+        p[0] = [p[1]].extend(p[3])
     elif (len(p) == 2):
-        p[0] = [Predicate(p[1])]
-    pass
+        p[0] = [p[1]]
 
 def p_predicate(p):
     '''
@@ -45,9 +113,9 @@ def p_predicate(p):
                | LOCATION LPAREN STRING RPAREN
     '''
     if(p[1] == 'time'):
-        p[0]= TimePredicate('time_pred', p[3], p[5])
+        p[0]= TimePredicate(p[3], p[5])
     elif p[1] =='location':
-        p[0]= LocationPredicate('location_pred', p[3])
+        p[0]= LocationPredicate(p[3])
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
@@ -56,5 +124,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('filter ALL by time(1-12-3988, 7-8-9878) ; ')
+ast = parser.parse('''filter ALL by time ( 1-12-3988 , 7-8-9878 )''')
 print(ast)

@@ -11,8 +11,8 @@ reserved = {
    'users' : 'USER',
    'towers' : 'TOWER',
    'count' : 'COUNT',
-   'provinces' : 'PROV',
-   'municipalities' : 'MUN'
+   'PROVINCES' : 'PROV',
+   'MUNICIPALITIES' : 'MUN'
 }
 
 # List of token names. 
@@ -56,7 +56,7 @@ t_RBRACE = r'\}'
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')    # Check for reserved words
-    return t 
+    return t
 
 def t_COMMENT(t):
     r'\#.*'
