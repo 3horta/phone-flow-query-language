@@ -6,7 +6,13 @@ reserved = {
    'location' : 'LOCATION',
    'ALL' : 'ALL',
    'filter' : 'FILTER',
-   'by': 'BY'
+   'by': 'BY',
+   'group' : 'GROUP',
+   'users' : 'USER',
+   'towers' : 'TOWER',
+   'count' : 'COUNT',
+   'provinces' : 'PROV',
+   'municipalities' : 'MUN'
 }
 
 # List of token names. 
@@ -24,7 +30,9 @@ tokens = (
    'RPAREN',
    'EQUAL',
    'COMMA',
-   'END'
+   'END',
+   'LBRACE',
+   'RBRACE'
    
 )
 
@@ -42,6 +50,8 @@ t_RPAREN  = r'\)'
 t_EQUAL= r'='
 t_COMMA= r','
 t_END= r';'
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
