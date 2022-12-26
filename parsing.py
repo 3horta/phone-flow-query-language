@@ -124,5 +124,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('''filter ALL by time ( 1-12-3988 , 7-8-9878 )''')
+ast = parser.parse('''filter ALL by time ( 1-12-3988 , 7-8-9878 );''')
 print(ast)
