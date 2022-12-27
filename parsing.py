@@ -5,13 +5,29 @@ from abstract_syntax_tree import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : group Register_set by Collection_list; 
-#                    | users ( Register_set ) ;
-#                    | towers ( Register_set ) ; 
-#                    | count ( Register_set ) ; 
-#                    | Register_set ;
+#   Program          : SuperType id = Expression;
+#
+#   SuperType        : list(Type) 
+#                    | ClusterSet 
+#                    | Type 
+#                    | epsilon
+#
+#   ClusterSet       : clusterset(string, ClusterSet) 
+#                    | clusterset(string, registerset)
+#
+#   Type             : registerset 
+#                    | int 
+#                    | string 
+#                    | date
+#
+#   Expression       : group Register_set by Collection_list
+#                    | users ( Register_set )
+#                    | towers ( Register_set )
+#                    | count ( Register_set )
+#                    | Register_set
 # 
-#   Register_set     : ALL 
+#   Register_set     : id 
+#                    | ALL
 #                    | filter Register_set by Predicate_list
 #
 #   Collection_list  : Collection, Collection_list
@@ -19,13 +35,14 @@ from abstract_syntax_tree import *
 # 
 #   Collection       : { provinces }
 #                    | { municipalities }
+#                    | id
 # 
 #   Predicate_list   : Predicate, Predicate_list 
 #                    | Predicate 
 #
 #   Predicate        : time ( date , date )
 #                    | location ( string )
-#
+#                    | id
 # -----------------------------------------------------------------------------
 
 # Write functions for each grammar rule which is
