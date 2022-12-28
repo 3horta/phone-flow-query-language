@@ -1,5 +1,7 @@
 from context.context import Context
 from context.type import Instance
+from context.type import Type
+
 class Node: 
     def evaluate(self, context: Context):
         pass
@@ -32,7 +34,7 @@ class VariableDeclaration(Node):
     def evaluate(self, context: Context):
         variable = context.resolve(self.name)
         if not variable:
-            context.define(self.name, Instance(self.type, self.value.evaluate(context))) #hay q evaluar a self.type?? Pero no hay nodo del ast
+            context.define(self.name, Instance(Type.types[self.type], self.value.evaluate(context)))
         else:
             raise Exception(f"Defined variable '{self.name}'.")
         
@@ -41,14 +43,14 @@ class GroupOp(Node):
         self.registers = registers
         self.collection = collection
     def evaluate(self, context: Context):
-        pass
+        pass # method from pfql_api.py
         
 class FilterOp(Node):
     def __init__(self, registers, predicates) -> None:
         self.registers = registers
         self.predicates = predicates
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
     
 class Users(Node):
     def __init__(self, registers) -> None:
@@ -87,8 +89,7 @@ class MunicipalitiesCollection(Node):
         pass
 
 class Predicate(Node):
-    def evaluate(self):
-        pass
+    pass
 
 class TimePredicate(Predicate):
     def __init__(self, start_date, end_date) -> None:
