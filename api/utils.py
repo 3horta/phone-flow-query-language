@@ -4,6 +4,7 @@ import regex as re
 import pyspark as spark
 from pyspark.sql import SparkSession
 import pandas as pd
+from math import modf
 
 spark = SparkSession.builder.appName('pfql_utils').getOrCreate() 
 
@@ -25,7 +26,7 @@ def charge_all_parquets_from_folder(path):
 
     return parquets
 
-def preprocess_paquets(data):
+def preprocess_parquets(data):
     codes = []
     cells_id = []
     times = []  
@@ -35,7 +36,19 @@ def preprocess_paquets(data):
         for _ in range(len(rows.cell_ids)):
             codes.append(rows.code)
         cells_id.extend(rows.cell_ids)
-        times.extend(rows.times)
+
+        for t in rows.times:
+            time = t // 3600
+            index = time.index('.')
+            
+            hours = t.replace(t[index::], "")
+            mins = t.replace(t[0:index+1], "")
+
+            sec = 00
+            if mins > 60:
+                sec = mins // 60
+            time = f"{hours}:{mins}:{sec}"
+            times.append(time)
     
     print(len(codes))
     print(len(cells_id))
@@ -43,7 +56,7 @@ def preprocess_paquets(data):
     subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
 
     subdiv_rowsDF = pd.DataFrame(subdiv_rows)
-    
+    print(subdiv_rowsDF)
     return subdiv_rowsDF
 
 def print_data_parquet(path, name):
