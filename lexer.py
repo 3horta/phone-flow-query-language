@@ -12,7 +12,13 @@ reserved = {
    'towers' : 'TOWER',
    'count' : 'COUNT',
    'PROVINCES' : 'PROV',
-   'MUNICIPALITIES' : 'MUN'
+   'MUNICIPALITIES' : 'MUN',
+   'registerset' : 'TYPE',
+   'int' : 'TYPE',
+   'string' : 'TYPE',
+   'date' : 'TYPE',
+   'list' : 'TYPE',
+   'clusterset' : 'TYPE'
 }
 
 # List of token names. 
