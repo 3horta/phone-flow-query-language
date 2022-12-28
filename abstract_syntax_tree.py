@@ -4,6 +4,13 @@ class Node:
         pass
 
 
+class VariableCall(Node):
+    def __init__(self, name: str) -> None:
+        self.name = name
+    
+    def evaluate(self):
+        return super().evaluate()
+    
 class VariableAssignment(Node):
     def __init__(self, name, value) -> None:
         self.name = name
