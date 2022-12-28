@@ -26,6 +26,21 @@ def charge_all_parquets_from_folder(path):
 
     return parquets
 
+def separate_time(time):
+    try:
+        index = time.index('.')
+        print(index)
+
+        first = time.replace(time[index::], "")
+        second = time.replace(time[0:index+1], "")
+        print(first)
+        print(second)
+    except:
+        first = round(float(time),2)
+        second = "00"
+
+    return first, second
+
 def preprocess_parquets(data):
     codes = []
     cells_id = []
@@ -38,25 +53,24 @@ def preprocess_parquets(data):
         cells_id.extend(rows.cell_ids)
 
         for t in rows.times:
-            time = t // 3600
-            index = time.index('.')
-            
-            hours = t.replace(t[index::], "")
-            mins = t.replace(t[0:index+1], "")
+            time = str(t / 3600)
 
-            sec = 00
-            if mins > 60:
-                sec = mins // 60
-            time = f"{hours}:{mins}:{sec}"
-            times.append(time)
+            hours, mins = separate_time(time)
+
+            if int(mins[0:2]) > 60:
+                hours = int(hours) + 1
+
+                mins = str(int(mins[0:2]) - 60)
+
+            else:
+                mins = mins[0:2]
     
-    print(len(codes))
-    print(len(cells_id))
-    print(len(times))
+            time = f"{hours}:{mins}"
+            times.append(time)
+     
     subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
 
     subdiv_rowsDF = pd.DataFrame(subdiv_rows)
-    print(subdiv_rowsDF)
     return subdiv_rowsDF
 
 def print_data_parquet(path, name):

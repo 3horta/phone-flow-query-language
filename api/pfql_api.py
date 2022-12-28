@@ -20,7 +20,7 @@ spark = SparkSession.builder.appName('pfql').getOrCreate()
 
 ID_REGION = __towers_location_dataframes()
 
-######################################## Region filter ##################################################
+######################################## Region filter ######################################
 
 def get_tower_by_province(data: df, location : str) -> List[str]:
 
@@ -47,7 +47,7 @@ def get_tower_by_municipality(data: df, location : str) -> List[str]:
     return filtered_data
 
 
-######################################## Date-Time filter ################################################
+######################################## Date-Time filter ####################################
 
 # time -> year - month - day
 def filter_by_date(star_date = "", end_date = ""):
@@ -109,7 +109,7 @@ def charge_data(path):
     return regDF
 
 d = charge_data("Data/1/2021-03-01/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
-#get_tower_by_municipality(d, "Playa")
-a = preprocess_parquets(d)
+get_tower_by_municipality(d, "Playa")
+#a = preprocess_parquets(d)
 #filter_by_date("2021-03-01")
 #endregion
