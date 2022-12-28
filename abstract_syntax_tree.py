@@ -1,6 +1,7 @@
-
+from context.context import Context
+from context.type import Instance
 class Node: 
-    def evaluate(self):
+    def evaluate(self, context: Context):
         pass
 
 
@@ -8,30 +9,40 @@ class VariableCall(Node):
     def __init__(self, name: str) -> None:
         self.name = name
     
-    def evaluate(self):
-        return super().evaluate()
+    def evaluate(self, context: Context):
+        context.resolve(self.name)
+        
     
 class VariableAssignment(Node):
     def __init__(self, name, value) -> None:
         self.name = name
         self.value = value
-    def evaluate(self):
-        return super().evaluate()
+    def evaluate(self, context: Context):
+        variable = context.resolve(self.name)
+        if variable:
+            variable.value = self.value.evaluate(context)
+        else:
+            raise Exception('Not defined variable.')
 
 class VariableDeclaration(Node):
     def __init__(self, type, name, value) -> None:
         self.type = type
         self.name = name
         self.value = value
-    def evaluate(self):
-        return super().evaluate()
+    def evaluate(self, context: Context):
+        variable = context.resolve(self.name)
+        if not variable:
+            context.define(self.name, Instance(self.type, self.value.evaluate(context))) #hay q evaluar a self.type?? Pero no hay nodo del ast
+        else:
+            raise Exception(f"Defined variable '{self.name}'.")
         
 class GroupOp(Node):
     def __init__(self, registers, collection) -> None:
         self.registers = registers
         self.collection = collection
-    def evaluate(self):
+    def evaluate(self, context: Context):
         pass
+        
 class FilterOp(Node):
     def __init__(self, registers, predicates) -> None:
         self.registers = registers

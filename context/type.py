@@ -48,6 +48,6 @@ class Method:
         self.args = args
 
 class Instance:
-    def __init__(self, _type: Type, value):
-        self.type = _type
+    def __init__(self, type: Type, value):
+        self.type = type
         self.value = value
