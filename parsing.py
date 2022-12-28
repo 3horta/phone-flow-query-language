@@ -129,7 +129,7 @@ def p_registerset_id(p):
     '''
     Register_set : ID
     '''
-    p[0] = p[1]
+    p[0] = VariableCall(p[1])
     
 def p_all(p):
     '''
@@ -139,12 +139,12 @@ def p_all(p):
 
 def p_filter(p):
     '''
-    Register_set : FILTER ALL BY Predicate_list
+    Register_set : FILTER Register_set BY Predicate_list
     '''
     # p is a sequence that represents rule contents.
     #
-    #  Register_set : filter  ALL     by    Predicate_list
-    #      p[0]     :  p[1]   p[2]   p[3]      p[4]
+    #  Register_set : filter  Register_set     by    Predicate_list
+    #      p[0]     :  p[1]       p[2]        p[3]      p[4]
     # 
     p[0] = FilterOp(p[2], p[4])
     
@@ -165,7 +165,7 @@ def p_collection(p):
                 | LBRACE MUN RBRACE
     '''
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = VariableCall(p[1])
     elif p[2] == 'PROVINCES':
         p[0]= ProvincesCollection()
     elif p[2] =='MUNICIPALITIES':
@@ -188,7 +188,7 @@ def p_predicate(p):
                | ID
     '''
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = VariableCall(p[1])
     elif p[1] == 'time':
         p[0]= TimePredicate(p[3], p[5])
     elif p[1] =='location':
@@ -200,6 +200,3 @@ def p_error(p):
 # Build the parser
 parser = yacc()
 
-# Parse an expression
-ast = parser.parse('''filter ALL by time ( 1-12-3988 , 7-8-9878 );''')
-print(ast)

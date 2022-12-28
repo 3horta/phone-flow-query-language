@@ -1,60 +1,95 @@
+from context.context import Context
+from context.type import Instance
+from context.type import Type
 
-class Expression: 
-    def evaluate(self):
+class Node: 
+    def evaluate(self, context: Context):
         pass
 
-class GroupOp(Expression):
+
+class VariableCall(Node):
+    def __init__(self, name: str) -> None:
+        self.name = name
+    
+    def evaluate(self, context: Context):
+        context.resolve(self.name)
+        
+    
+class VariableAssignment(Node):
+    def __init__(self, name, value) -> None:
+        self.name = name
+        self.value = value
+    def evaluate(self, context: Context):
+        variable = context.resolve(self.name)
+        if variable:
+            variable.value = self.value.evaluate(context)
+        else:
+            raise Exception('Not defined variable.')
+
+class VariableDeclaration(Node):
+    def __init__(self, type, name, value) -> None:
+        self.type = type
+        self.name = name
+        self.value = value
+    def evaluate(self, context: Context):
+        variable = context.resolve(self.name)
+        if not variable:
+            context.define(self.name, Instance(Type.types[self.type], self.value.evaluate(context)))
+        else:
+            raise Exception(f"Defined variable '{self.name}'.")
+        
+class GroupOp(Node):
     def __init__(self, registers, collection) -> None:
         self.registers = registers
         self.collection = collection
-    def evaluate(self):
-        pass
-class FilterOp(Expression):
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
+        
+class FilterOp(Node):
     def __init__(self, registers, predicates) -> None:
         self.registers = registers
         self.predicates = predicates
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
     
-class Users(Expression):
+class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
         pass
 
-class Towers(Expression):
+class Towers(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
         pass
     
-class Count(Expression):
+class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
         pass
     
-class AllRegisters(Expression):
+class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self):
         pass
     
-class ProvincesCollection(Expression):
+class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self):
         pass
     
-class MunicipalitiesCollection(Expression):
+class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self):
         pass
 
-class Predicate(Expression):
-    def evaluate(self):
-        pass
+class Predicate(Node):
+    pass
 
 class TimePredicate(Predicate):
     def __init__(self, start_date, end_date) -> None:
