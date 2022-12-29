@@ -2,6 +2,9 @@ from typing import List, Tuple
 import pandas as pd
 import datetime as dt
 
+LOCATIONS = {}
+
+
 #region classes
 
 class Time:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict, List
+from datetime import date
 
 
 class Type:
@@ -11,6 +12,12 @@ class Type:
         self.attributes: Dict[str, Attribute] = {}
         self.methods: Dict[str, Method] = {}
         Type.types[name] = self
+        
+    @staticmethod
+    def get(type_name: str):
+        if type_name not in Type.types.keys():
+            raise KeyError(f"'{type_name}' not found in PFQL types.")
+        return Type.types[type_name]
         
     def get_attribute(self, name: str) -> Attribute:
         if name not in self.attributes.keys():
@@ -51,3 +58,20 @@ class Instance:
     def __init__(self, type: Type, value):
         self.type = type
         self.value = value
+
+
+pfql_string = Type('string')
+pfql_date = Type('date')
+pfql_time_interval = Type('time_interval')
+pfql_time_interval.define_attribute('start_date', Type.get('date'))
+pfql_time_interval.define_attribute('end_date', Type.get('date'))
+pfql_int = Type('int')
+pfql_registerset = Type('registerset')
+# Pending adding list types
+
+
+
+class TimeInterval:
+    def __init__(self, start_date: date, end_date: date) -> None:
+        self.start_date = start_date
+        self.end_date = end_date
