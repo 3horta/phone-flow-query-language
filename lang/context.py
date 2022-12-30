@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, Dict, Optional
-from context.type import Instance
+from lang.type import Instance
 
 
 class Context:

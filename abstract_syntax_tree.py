@@ -1,8 +1,14 @@
-from context.context import Context
-from context.type import Instance
-from context.type import Type
+from abc import ABC, abstractmethod
+from lang.context import Context
+from lang.type import Instance, TimeInterval
+from lang.type import Type
 
-class Node: 
+class Node(ABC):
+    @abstractmethod
+    def __init__(self) -> None:
+        self.computed_type = None
+        
+    @abstractmethod
     def evaluate(self, context: Context):
         pass
 
@@ -34,7 +40,7 @@ class VariableDeclaration(Node):
     def evaluate(self, context: Context):
         variable = context.resolve(self.name)
         if not variable:
-            context.define(self.name, Instance(Type.types[self.type], self.value.evaluate(context)))
+            context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
         else:
             raise Exception(f"Defined variable '{self.name}'.")
         
@@ -95,12 +101,11 @@ class TimePredicate(Predicate):
     def __init__(self, start_date, end_date) -> None:
         self.start_date = start_date
         self.end_date = end_date
-    def evaluate(self):
-        pass
-        
+    def evaluate(self, context: Context):
+        return TimeInterval(self.start_date, self.end_date)
+
 class LocationPredicate(Predicate):
     def __init__(self, location) -> None:
         self.location = location
-    def evaluate(self):
-        pass
-        
+    def evaluate(self, context: Context):
+        return self.location
