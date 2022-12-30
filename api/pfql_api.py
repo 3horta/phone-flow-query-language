@@ -96,21 +96,24 @@ def filter(set, *filters):
 
 def union(A, B):
     """
-    Returns two sets union.
+    Returns two df union.
     """
-    pass
+    unionDF = pd.concat((A, B))
+    return unionDF
 
 def intersection(A, B):
     """
     Returns two sets intersections.
     """
-    pass
+    intersectionDF = pd.merge(A, B, how='inner')
+    return intersectionDF
 
 def difference(A, B):
     """
     Returns two sets difference. (parameters order)
     """
-    pass
+    differenceDF = pd.concat([A, B]).drop_duplicates(keep=False)
+    return differenceDF
 
 
 def charge_data(path):
@@ -118,8 +121,12 @@ def charge_data(path):
     return regDF
 
 d = charge_data("Data/1/2021-03-01/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
+d2 = charge_data("Data/1/2021-03-01/part-00001-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
 #get_tower_by_municipality(d, "Playa")
-filter_by_time(d, "02:00", "02:45")
-#a = preprocess_parquets(d)
+#filter_by_time(d, "02:00", "02:45")
+a = preprocess_parquets(d)
+b = preprocess_parquets(d2)
 #filter_by_date("2021-03-01")
+c = union(a, b)
+print(intersection(a,c))
 #endregion
