@@ -69,7 +69,7 @@ def id_regions_from_one_parquet(path, cellid_towid):
     cellid_towid = pd.DataFrame(cellid_towid, columns=[])
 
 
-############################ DATE FILTER AUXILIAR ##########################################
+############################ DATE FILTER AUXILIAR ############################################
 
 def date_difference(start_date: string, end_date: string):
     date_list = []
@@ -87,3 +87,30 @@ def date_difference(start_date: string, end_date: string):
         date_list = [(start + timedelta(days=d)).strftime("%Y-%m-%d")
                     for d in range(difference.days + 1)] 
     return date_list
+
+############################ TIME FILTER AUXILIAR ############################################
+
+def time_difference(start_time: string, end_time: string):
+    time_list = []
+    if start_time == "": 
+        date_list.append(end_time)
+
+    elif end_time == "":
+        date_list.append(start_time)
+
+    else:
+        start = datetime.strptime(start_time, "%Y-%m-%d")
+        end = datetime.strptime(end_time, "%Y-%m-%d")
+        difference = end - start
+
+        start_time = datetime.strptime(start_time, '%H:%M')
+        end_time = datetime.strptime(end_time, '%H:%M')
+
+        date_list = [(start + timedelta(days=d)).strftime("%Y-%m-%d")
+                    for d in range(difference.days + 1)] 
+    return date_list
+
+def convert_to_seconds(start_time: str, end_time: str):
+    start_time = int(start_time[0:2]) * 3600 + int(start_time[3:5]) * 60
+    end_time = int(end_time[0:2]) * 3600 + int(end_time[3:5]) * 60
+    return start_time, end_time

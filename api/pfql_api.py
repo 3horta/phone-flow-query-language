@@ -1,4 +1,5 @@
 from os import times
+from telnetlib import TSPEED
 from typing import List, Tuple
 import pandas as pd
 from pandas import DataFrame as df
@@ -13,7 +14,7 @@ from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
 from utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
-from auxiliar_filter_methods import __towers_location_dataframes, date_difference
+from auxiliar_filter_methods import __towers_location_dataframes, convert_to_seconds, date_difference
 import os
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
@@ -69,6 +70,14 @@ def filter_by_date(star_date = "", end_date = ""):
         
     return date_filteredDF
 
+def filter_by_time(data, start_time: str, end_time: str):
+    start_time, end_time = convert_to_seconds(start_time, end_time)
+    data = preprocess_parquets(data)
+    filtered_data = data.loc[(data.Times >= start_time) & (data.Times <= end_time)]
+
+    print(filtered_data)
+    return filtered_data
+
 
 def get_collection(collection_name : str) -> List[str]:
     """
@@ -109,7 +118,8 @@ def charge_data(path):
     return regDF
 
 d = charge_data("Data/1/2021-03-01/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
-get_tower_by_municipality(d, "Playa")
+#get_tower_by_municipality(d, "Playa")
+filter_by_time(d, "02:00", "02:45")
 #a = preprocess_parquets(d)
 #filter_by_date("2021-03-01")
 #endregion

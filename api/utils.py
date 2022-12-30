@@ -52,7 +52,7 @@ def preprocess_parquets(data):
             codes.append(rows.code)
         cells_id.extend(rows.cell_ids)
 
-        for t in rows.times:
+        """ for t in rows.times:
             time = str(t / 3600)
 
             hours, mins = separate_time(time)
@@ -66,7 +66,9 @@ def preprocess_parquets(data):
                 mins = mins[0:2]
     
             time = f"{hours}:{mins}"
-            times.append(time)
+            times.append(time)"""
+
+        times.extend(rows.times)
      
     subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
 
