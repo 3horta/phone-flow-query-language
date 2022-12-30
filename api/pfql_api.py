@@ -79,7 +79,7 @@ def filter_by_time(data, start_time: str, end_time: str):
     return filtered_data
 
 
-def get_collection(collection_name : str) -> List[str]:
+def get_collection(collection_name : str) -> List[str]: #need to define how to load collections from language
     """
     Returns collection.
     """
