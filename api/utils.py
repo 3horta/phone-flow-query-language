@@ -11,7 +11,7 @@ spark = SparkSession.builder.appName('pfql_utils').getOrCreate()
 def charge_all_parquets_from_folder(path):
     #path -> path to the folder where the parquets are
     files = list(os.listdir(path))
-    parquets = []
+    parquetsDF = pd.DataFrame()
 
     for file in files:
         parquet_reg = re.compile(r'(\S*.parquet)')
@@ -22,9 +22,11 @@ def charge_all_parquets_from_folder(path):
             if '.crc' in parquet.string:
                 continue
             else:  
-                parquets.append(parquet.string)
+                new_parquet = spark.read.parquet(parquet.string).toPandas()
+                parquetsDF = pd.concat([parquetsDF, new_parquet])
 
-    return parquets
+
+    return parquetsDF
 
 def separate_time(time):
     try:
