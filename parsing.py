@@ -119,10 +119,6 @@ def p_count(p):
     p[0] = Count(p[3])
 
 def p_expression_register_set(p):
-<<<<<<< HEAD
-    '''
-    Expression : Register_set
-=======
     '''
     Expression : Register_set
     '''
@@ -132,7 +128,6 @@ def p_expression_register_set(p):
 def p_registerset_id(p):
     '''
     Register_set : ID
->>>>>>> dev-erh
     '''
     p[0] = p[1]
     
@@ -177,11 +172,7 @@ def p_collection(p):
                 | LBRACE MUN RBRACE
     '''
     if len(p) == 2:
-<<<<<<< HEAD
-        p[0] = VariableCall(p[1])
-=======
         p[0] = p[1]
->>>>>>> dev-erh
     elif p[2] == 'PROVINCES':
         p[0]= ProvincesCollection()
     elif p[2] =='MUNICIPALITIES':
@@ -204,11 +195,7 @@ def p_predicate(p):
                | ID
     '''
     if len(p) == 2:
-<<<<<<< HEAD
-        p[0] = VariableCall(p[1])
-=======
         p[0] = p[1]
->>>>>>> dev-erh
     elif p[1] == 'time':
         p[0]= TimePredicate(p[3], p[5])
     elif p[1] =='location':
