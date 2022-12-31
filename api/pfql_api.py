@@ -7,7 +7,7 @@ LOCATIONS = {}
 
 #region classes
 
-class Time:
+class TimeInterval:
     def __init__(self, beginning_time : dt.datetime, ending_time : dt.datetime = None) -> None:
         """
         Initializes a time interval given datetimes limits.

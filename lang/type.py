@@ -67,11 +67,5 @@ pfql_time_interval.define_attribute('start_date', Type.get('date'))
 pfql_time_interval.define_attribute('end_date', Type.get('date'))
 pfql_int = Type('int')
 pfql_registerset = Type('registerset')
-# Pending adding list types
-
-
-
-class TimeInterval:
-    def __init__(self, start_date: date, end_date: date) -> None:
-        self.start_date = start_date
-        self.end_date = end_date
+pfql_str_list = Type('str_list')
+pfql_group_dict = Type('group_dict')

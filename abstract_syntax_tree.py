@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from api.pfql_api import TimeInterval
 from lang.context import Context
-from lang.type import Instance, TimeInterval
+from lang.type import Instance
 from lang.type import Type
 
 class Node(ABC):
@@ -61,38 +62,38 @@ class FilterOp(Node):
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
 
 class Towers(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # method from pfql_api.py
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # from pfql_api.py
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # from pfql_api.py
     
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # from pfql_api.py
 
 class Predicate(Node):
     pass
