@@ -5,8 +5,11 @@ from abstract_syntax_tree import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : SuperType id = Expression ;
-#                    | id = Expression ;
+#   Program          : Statement ; Program
+#                    | Statement ;
+#
+#   Statement        : SuperType id = Expression
+#                    | id = Expression
 #
 #   SuperType        : list(Type) 
 #                    | ClusterSet 
@@ -17,7 +20,7 @@ from abstract_syntax_tree import *
 #
 #   Type             : registerset 
 #                    | int 
-#                    | string 
+#                    | string
 #                    | date
 #
 #   Expression       : group Register_set by Collection_list
@@ -48,14 +51,31 @@ from abstract_syntax_tree import *
 # Write functions for each grammar rule which is
 # specified in the docstring.
 
+def p_program(p):
+    '''
+    Program : Statement_list
+    '''
+    p[0] = Program(p[1])
+
+def p_statement_list(p):
+    '''
+    Statement_list : Statement END Statement_list
+                   | Statement END
+    '''
+    if (len(p) == 4):
+        p[0] = [p[1]] + p[3]
+    elif (len(p) == 3):
+        p[0] = [p[1]]
+
+
 def p_variable(p):
     '''
-    Program : SuperType ID EQUAL Expression END
-            | ID EQUAL Expression END
+    Statement : SuperType ID EQUAL Expression
+              | ID EQUAL Expression
     '''
-    if len(p) == 6:
+    if len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
-    elif len(p) == 5:
+    elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
 
 def p_supertype_list(p):
@@ -154,7 +174,7 @@ def p_collection_list(p):
                     | Collection
     '''
     if (len(p) == 4):
-        p[0] = [p[1]].extend(p[3])
+        p[0] = [p[1]] + p[3]
     elif (len(p) == 2):
         p[0] = [p[1]]
         
@@ -177,7 +197,7 @@ def p_predicate_list(p):
                    | Predicate
     '''
     if (len(p) == 4):
-        p[0] = [p[1]].extend(p[3])
+        p[0] = [p[1]] + p[3]
     elif (len(p) == 2):
         p[0] = [p[1]]
 
@@ -198,5 +218,5 @@ def p_error(p):
     print(f'Syntax error at {p.value!r}')
 
 # Build the parser
-parser = yacc()
+parser = yacc(debug=True)
 

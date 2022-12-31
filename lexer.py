@@ -45,8 +45,8 @@ tokens = (
 
 # Regular expression rules for simple tokens
 t_STRING= r'"\w*"'
+t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 
-t_DATE= r'((\d\d?-)?\d\d?-)?\d{4}' #DUDA: Desde aqui lo convierto en Date de Python? Como hacen con numeros en ejemplo
 t_PLUS    = r'\+'
 t_MULTIPLY= r'\*'
 t_DIFFER  = r'\\'
@@ -58,6 +58,8 @@ t_COMMA= r','
 t_END= r';'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
+
+
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -96,4 +98,4 @@ def find_column(input, token):
 
 tokens= list(reserved.values()) + list(tokens)
 
-lexer = lex.lex()
+lexer = lex.lex(debug=True)

@@ -1,5 +1,5 @@
 from typing import List
-from abstract_syntax_tree import AllRegisters, Count, FilterOp, GroupOp, LocationPredicate, MunicipalitiesCollection, Node, ProvincesCollection, TimePredicate, Towers, Users, VariableAssignment, VariableCall, VariableDeclaration
+from abstract_syntax_tree import AllRegisters, Count, FilterOp, GroupOp, LocationPredicate, MunicipalitiesCollection, Node, Program, ProvincesCollection, TimePredicate, Towers, Users, VariableAssignment, VariableCall, VariableDeclaration
 from api.pfql_api import LOCATIONS
 from lang.context import Context
 from lang.type import Type
@@ -9,6 +9,15 @@ from datetime import date
 class TypeChecker:
     def __init__(self, context: Context) -> None:
         self.context = context
+        
+    @visitor.on("node")
+    def visit(self, node):
+        pass
+
+    @visitor.when(Program)
+    def visit(self, node: Program):
+        for statement in node.statements:
+            self.visit(statement)
 
     @visitor.when(VariableAssignment)
     def visit(self, node: VariableAssignment):
@@ -42,7 +51,7 @@ class TypeChecker:
             self.visit(item)
             if item.computed_type is not Type.get('str_list'):
                 raise Exception(f"{item.computed_type} not expected.")
-        node.computed_type = Type.get('group_dict')
+        node.computed_type = Type.get('clusterset')
     
     @visitor.when(VariableCall)
     def visit(self, node: VariableCall):
@@ -66,12 +75,19 @@ class TypeChecker:
             raise Exception(f"{node.registers.computed_type} not expected.")
         for predicate in node.predicates:
             self.visit(predicate)
-            if predicate.computed_type is not (Type.get('string') or Type.get('time_interval')):
+            if predicate.computed_type is not Type.get('string') and predicate.computed_type is not Type.get('time_interval'):
                 raise Exception(f"{predicate.computed_type} not expected.")
         node.computed_type = Type.get('registerset')
     
-    @visitor.when(Users, Towers)
-    def visit(self, node):
+    @visitor.when(Users)
+    def visit(self, node: Users):
+        self.visit(node.registers)
+        if node.registers.computed_type is not Type.get('registerset'):
+            raise Exception(f"{node.registers.computed_type} not expected.")
+        node.computed_type = Type.get('str_list')
+        
+    @visitor.when(Towers)
+    def visit(self, node: Towers):
         self.visit(node.registers)
         if node.registers.computed_type is not Type.get('registerset'):
             raise Exception(f"{node.registers.computed_type} not expected.")
