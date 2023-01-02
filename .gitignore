@@ -1,9 +1,11 @@
 # csv data
 *.csv
-
 *.ipynb
 
 *.vscode
+parser.out
+parsetab.py
+types.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

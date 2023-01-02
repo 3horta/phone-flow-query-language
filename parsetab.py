@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ALL BY COMMA COUNT DATE DIFFER END EQUAL FILTER GROUP ID LBRACE LOCATION LPAREN MULTIPLY MUN PLUS PROV RBRACE RPAREN STRING TIME TOWER TYPE TYPE TYPE TYPE TYPE TYPE USER\n    Program : Statement_list\n    \n    Statement_list : Statement END Statement_list\n                   | Statement END\n    \n    Statement : SuperType ID EQUAL Expression\n              | ID EQUAL Expression\n    \n    SuperType : TYPE LPAREN Type RPAREN\n    \n    SuperType : ClusterSet\n    \n    SuperType : Type\n    \n    ClusterSet : TYPE LPAREN TYPE COMMA ClusterSet RPAREN\n    \n    ClusterSet : TYPE LPAREN TYPE COMMA TYPE RPAREN\n    \n    Type : TYPE\n    \n    Expression : GROUP Register_set BY Collection_list\n    \n    Expression : USER LPAREN Register_set RPAREN\n    \n    Expression : TOWER LPAREN Register_set RPAREN\n    \n    Expression : COUNT LPAREN Register_set RPAREN\n    \n    Expression : Register_set\n    \n    Register_set : ID\n    \n    Register_set : ALL\n    \n    Register_set : FILTER Register_set BY Predicate_list\n    \n    Collection_list : Collection COMMA Collection_list\n                    | Collection\n    \n    Collection  : ID\n                | LBRACE PROV RBRACE\n                | LBRACE MUN RBRACE\n    \n    Predicate_list : Predicate COMMA Predicate_list\n                   | Predicate\n    \n    Predicate  : TIME LPAREN DATE COMMA DATE RPAREN\n               | LOCATION LPAREN STRING RPAREN\n               | ID\n    '
+_lr_signature = 'ALL BY COMMA DATE DIFFER END EQUAL FILTER ID LOCATION LPAREN MULTIPLY PLUS RPAREN STRING TIME\n    Program : FILTER ALL BY Predicate_list END\n    \n    Predicate_list : Predicate COMMA Predicate_list\n                   | Predicate\n    \n    Predicate  : TIME LPAREN DATE COMMA DATE RPAREN\n               | LOCATION LPAREN STRING RPAREN\n    '
     
-_lr_action_items = {'ID':([0,4,6,7,8,9,11,14,17,23,28,29,30,33,34,38,54,55,56,59,],[5,10,-11,-8,-7,5,15,15,15,15,15,15,15,-6,43,52,-10,-9,43,52,]),'TYPE':([0,9,12,32,53,],[6,6,24,39,62,]),'$end':([1,2,9,13,],[0,-1,-3,-2,]),'END':([3,15,16,18,22,26,41,42,43,45,46,47,48,49,52,63,64,65,66,70,72,],[9,-17,-5,-16,-18,-4,-12,-21,-22,-13,-14,-15,-19,-26,-29,-20,-23,-24,-25,-28,-27,]),'EQUAL':([5,10,],[11,14,]),'LPAREN':([6,19,20,21,39,50,51,],[12,28,29,30,53,60,61,]),'GROUP':([11,14,],[17,17,]),'USER':([11,14,],[19,19,]),'TOWER':([11,14,],[20,20,]),'COUNT':([11,14,],[21,21,]),'ALL':([11,14,17,23,28,29,30,],[22,22,22,22,22,22,22,]),'FILTER':([11,14,17,23,28,29,30,],[23,23,23,23,23,23,23,]),'BY':([15,22,27,31,48,49,52,66,70,72,],[-17,-18,34,38,-19,-26,-29,-25,-28,-27,]),'RPAREN':([15,22,24,25,35,36,37,39,40,48,49,52,54,55,66,68,70,71,72,],[-17,-18,-11,33,45,46,47,54,55,-19,-26,-29,-10,-9,-25,70,-28,72,-27,]),'COMMA':([24,42,43,49,52,62,64,65,67,70,72,],[32,56,-22,59,-29,32,-23,-24,69,-28,-27,]),'LBRACE':([34,56,],[44,44,]),'TIME':([38,59,],[50,50,]),'LOCATION':([38,59,],[51,51,]),'PROV':([44,],[57,]),'MUN':([44,],[58,]),'RBRACE':([57,58,],[64,65,]),'DATE':([60,69,],[67,71,]),'STRING':([61,],[68,]),}
+_lr_action_items = {'FILTER':([0,],[2,]),'$end':([1,9,],[0,-1,]),'ALL':([2,],[3,]),'BY':([3,],[4,]),'TIME':([4,10,],[7,7,]),'LOCATION':([4,10,],[8,8,]),'END':([5,6,13,17,19,],[9,-3,-2,-5,-4,]),'COMMA':([6,14,17,19,],[10,16,-5,-4,]),'LPAREN':([7,8,],[11,12,]),'DATE':([11,16,],[14,18,]),'STRING':([12,],[15,]),'RPAREN':([15,18,],[17,19,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'Program':([0,],[1,]),'Statement_list':([0,9,],[2,13,]),'Statement':([0,9,],[3,3,]),'SuperType':([0,9,],[4,4,]),'Type':([0,9,12,],[7,7,25,]),'ClusterSet':([0,9,32,],[8,8,40,]),'Expression':([11,14,],[16,26,]),'Register_set':([11,14,17,23,28,29,30,],[18,18,27,31,35,36,37,]),'Collection_list':([34,56,],[41,63,]),'Collection':([34,56,],[42,42,]),'Predicate_list':([38,59,],[48,66,]),'Predicate':([38,59,],[49,49,]),}
+_lr_goto_items = {'Program':([0,],[1,]),'Predicate_list':([4,10,],[5,13,]),'Predicate':([4,10,],[6,6,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,33 +27,9 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> Program","S'",1,None,None,None),
-  ('Program -> Statement_list','Program',1,'p_program','parsing.py',56),
-  ('Statement_list -> Statement END Statement_list','Statement_list',3,'p_statement_list','parsing.py',62),
-  ('Statement_list -> Statement END','Statement_list',2,'p_statement_list','parsing.py',63),
-  ('Statement -> SuperType ID EQUAL Expression','Statement',4,'p_variable','parsing.py',73),
-  ('Statement -> ID EQUAL Expression','Statement',3,'p_variable','parsing.py',74),
-  ('SuperType -> TYPE LPAREN Type RPAREN','SuperType',4,'p_supertype_list','parsing.py',83),
-  ('SuperType -> ClusterSet','SuperType',1,'p_supertype_clusterset','parsing.py',89),
-  ('SuperType -> Type','SuperType',1,'p_supertype_type','parsing.py',95),
-  ('ClusterSet -> TYPE LPAREN TYPE COMMA ClusterSet RPAREN','ClusterSet',6,'p_clusterset_clusterset','parsing.py',101),
-  ('ClusterSet -> TYPE LPAREN TYPE COMMA TYPE RPAREN','ClusterSet',6,'p_clusterset_registerset','parsing.py',107),
-  ('Type -> TYPE','Type',1,'p_type','parsing.py',113),
-  ('Expression -> GROUP Register_set BY Collection_list','Expression',4,'p_group','parsing.py',119),
-  ('Expression -> USER LPAREN Register_set RPAREN','Expression',4,'p_users','parsing.py',125),
-  ('Expression -> TOWER LPAREN Register_set RPAREN','Expression',4,'p_towers','parsing.py',131),
-  ('Expression -> COUNT LPAREN Register_set RPAREN','Expression',4,'p_count','parsing.py',137),
-  ('Expression -> Register_set','Expression',1,'p_expression_register_set','parsing.py',143),
-  ('Register_set -> ID','Register_set',1,'p_registerset_id','parsing.py',150),
-  ('Register_set -> ALL','Register_set',1,'p_all','parsing.py',156),
-  ('Register_set -> FILTER Register_set BY Predicate_list','Register_set',4,'p_filter','parsing.py',162),
-  ('Collection_list -> Collection COMMA Collection_list','Collection_list',3,'p_collection_list','parsing.py',173),
-  ('Collection_list -> Collection','Collection_list',1,'p_collection_list','parsing.py',174),
-  ('Collection -> ID','Collection',1,'p_collection','parsing.py',183),
-  ('Collection -> LBRACE PROV RBRACE','Collection',3,'p_collection','parsing.py',184),
-  ('Collection -> LBRACE MUN RBRACE','Collection',3,'p_collection','parsing.py',185),
-  ('Predicate_list -> Predicate COMMA Predicate_list','Predicate_list',3,'p_predicate_list','parsing.py',196),
-  ('Predicate_list -> Predicate','Predicate_list',1,'p_predicate_list','parsing.py',197),
-  ('Predicate -> TIME LPAREN DATE COMMA DATE RPAREN','Predicate',6,'p_predicate','parsing.py',206),
-  ('Predicate -> LOCATION LPAREN STRING RPAREN','Predicate',4,'p_predicate','parsing.py',207),
-  ('Predicate -> ID','Predicate',1,'p_predicate','parsing.py',208),
+  ('Program -> FILTER ALL BY Predicate_list END','Program',5,'p_filter','parsing.py',22),
+  ('Predicate_list -> Predicate COMMA Predicate_list','Predicate_list',3,'p_predicate_list','parsing.py',33),
+  ('Predicate_list -> Predicate','Predicate_list',1,'p_predicate_list','parsing.py',34),
+  ('Predicate -> TIME LPAREN DATE COMMA DATE RPAREN','Predicate',6,'p_predicate','parsing.py',44),
+  ('Predicate -> LOCATION LPAREN STRING RPAREN','Predicate',4,'p_predicate','parsing.py',45),
 ]
