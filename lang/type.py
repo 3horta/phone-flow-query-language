@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from typing import Dict, List
-from datetime import date
+
+from lang.context import Context
 
 
 class Type:
@@ -41,6 +42,9 @@ class Type:
         attributes = [Attribute(args[i], arg_types[i]) for i in range(len(args))]
         self.methods[name] = Method(name, return_type, attributes)
         return True
+    
+    def __str__(self) -> str:
+        return self.name
 
 class Attribute:
     def __init__(self, name: str, type: Type) -> None:
@@ -58,20 +62,24 @@ class Instance:
     def __init__(self, type: Type, value):
         self.type = type
         self.value = value
+        
+class FunctionInstance:
+    def __init__(self, context: Context, type: Type, body) -> None:
+        self.context = context
+        self.type = type
+        self.body = body
 
 
 pfql_string = Type('string')
 pfql_date = Type('date')
+pfql_int = Type('int')
+pfql_registerset = Type('registerset')
+pfql_clusterset = Type('clusterset')
+
+pfql_str_list = Type('list(string)')
+
+pfql_void = Type('void')
+
 pfql_time_interval = Type('time_interval')
 pfql_time_interval.define_attribute('start_date', Type.get('date'))
 pfql_time_interval.define_attribute('end_date', Type.get('date'))
-pfql_int = Type('int')
-pfql_registerset = Type('registerset')
-# Pending adding list types
-
-
-
-class TimeInterval:
-    def __init__(self, start_date: date, end_date: date) -> None:
-        self.start_date = start_date
-        self.end_date = end_date
