@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from atexit import register
 from lang.context import Context
 from lang.type import Instance, TimeInterval
 from lang.type import Type
+from api.pfql_api import *
 
 class Node(ABC):
     @abstractmethod
@@ -62,25 +64,25 @@ class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        pass
+        get_users_columns(self.registers)
 
 class Towers(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        pass
+        get_towers_columns(self.registers)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        pass
+        count(self.registers)
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self):
-        pass
+        charge_data()
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:

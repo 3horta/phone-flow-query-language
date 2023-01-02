@@ -24,7 +24,7 @@ ID_REGION = None
 
 ######################################## Region filter ######################################
 
-def get_tower_by_province(data: df, location : str) -> List[str]:
+def filter_by_province(data: df, location : str) -> List[str]:
 
     if ID_REGION == None:
         ID_REGION = __towers_location_dataframes()
@@ -39,7 +39,7 @@ def get_tower_by_province(data: df, location : str) -> List[str]:
 
     return filtered_data
 
-def get_tower_by_municipality(data: df, location : str) -> List[str]:
+def filter_by_municipality(data: df, location : str) -> List[str]:
 
     if ID_REGION == None:
         ID_REGION = __towers_location_dataframes()
@@ -92,11 +92,17 @@ def get_collection(collection_name : str) -> List[str]: #need to define how to l
     """
     pass
 
-def filter(set, *filters):
+def filter(set, filters):
     """
     Returns a new set filtered by filters.
     """
-    pass
+    for filter in filters:
+        if "Time" in str(filter):
+            filter_by_time(set, )
+        
+        if "Region" in str(filter):
+            filter_by_municipality(set, )
+
 
 
 ############################## Set Operations ###########################################
