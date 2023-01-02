@@ -111,7 +111,7 @@ def p_function_body(p):
         
 def p_return_statement(p):
     '''
-    ReturnStatement : RETURN Expression;
+    ReturnStatement : RETURN Expression END
     '''
     p[0] = ReturnStatement(p[2])
         

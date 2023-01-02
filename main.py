@@ -12,6 +12,10 @@ ast = parser.parse(
     a = filter a by time(1200, 1230);
     
     
+    function void testing_func(registerset z) {
+        int f = count(a);
+    };
+    
     
     
     

@@ -20,7 +20,8 @@ reserved = {
    'list' : 'COMPLEXTYPE',
    'clusterset' : 'TYPE',
    'function' : 'FUNCTION',
-   'void' : 'VOID'
+   'void' : 'VOID',
+   'return' : 'RETURN'
 }
 
 # List of token names. 

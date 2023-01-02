@@ -5,13 +5,13 @@ import lang.visitor as visitor
 from abstract_syntax_tree import (AllRegisters, Count, FilterOp,
                                   FunctionDeclaration, GroupOp,
                                   LocationPredicate, MunicipalitiesCollection,
-                                  Node, Program, ProvincesCollection,
+                                  Node, Program, ProvincesCollection, ReturnStatement,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
                                   VariableDeclaration)
 from api.pfql_api import LOCATIONS
 from lang.context import Context
-from lang.type import Type
+from lang.type import FunctionInstance, Type
 
 
 class SemanticChecker:
@@ -29,11 +29,35 @@ class SemanticChecker:
             
     @visitor.when(FunctionDeclaration)
     def visit(self, node: FunctionDeclaration):
-        func = self.context.resolve(self.name)
+        func = self.context.resolve(node.name)
         if func: 
             raise Exception(f"Defined function '{self.name}'.")
         
-        # Me quedé aquí, nos fuimos a añadir return
+        function_type = Type.get(node.type)
+        
+        child_context: Context = self.context.make_child()
+        for parameter in node.parameters:
+            child_context.define(parameter[1], Type.get(parameter[0]))
+        
+        func_instance = FunctionInstance(child_context, function_type, None)
+        self.context.define(node.name, func_instance)
+        
+        has_return = False
+        for sub_program in node.body:
+            self.visit(sub_program)
+            if isinstance(sub_program, ReturnStatement):
+                has_return = True
+                if sub_program.computed_type is not function_type:
+                    raise Exception(f"Not expected '{sub_program.computed_type}' as return type.")
+        if not has_return and function_type != Type.get('void'):
+            raise Exception(f"Return not expected.")
+        
+        node.computed_type = function_type
+    
+    @visitor.when(ReturnStatement)
+    def visit(self, node: ReturnStatement):
+        self.visit(node.expression)
+        node.computed_type = node.expression.computed_type
         
 
     @visitor.when(VariableAssignment)

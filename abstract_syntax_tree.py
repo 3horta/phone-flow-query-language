@@ -42,7 +42,7 @@ class ReturnStatement(Node):
     def __init__(self, expression) -> None:
         self.expression = expression
     def evaluate(self, context: Context):
-        pass # ejecuta self.expression.evaluate. Me quedé aquí!!!!!!!!!
+        return self.expression.evaluate(context)
 
 
 class VariableCall(Node):
