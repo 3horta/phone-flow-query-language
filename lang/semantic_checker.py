@@ -42,9 +42,10 @@ class SemanticChecker:
         func_instance = FunctionInstance(child_context, function_type, None)
         self.context.define(node.name, func_instance)
         
+        child_semantic_checker = SemanticChecker(child_context)
         has_return = False
         for sub_program in node.body:
-            self.visit(sub_program)
+            child_semantic_checker.visit(sub_program)
             if isinstance(sub_program, ReturnStatement):
                 has_return = True
                 if sub_program.computed_type is not function_type:

@@ -17,6 +17,7 @@ from abstract_syntax_tree import *
 #
 #   FunctionBody     : Program
 #                    | Program ReturnStatement
+#                    | ReturnStatement
 #
 #   ReturnStatement  : return Expression;
 #
@@ -103,6 +104,7 @@ def p_function_body(p):
     '''
     FunctionBody : Program
                  | Program ReturnStatement
+                 | ReturnStatement
     '''
     if len(p) == 2:
         p[0] = [p[1]]
