@@ -8,27 +8,20 @@ from abstract_syntax_tree import *
 #   Program          : Statement ; Program
 #                    | Statement ;
 #
-#   Statement        : SuperType id = Expression
+#   Statement        : SimpleType id = Expression
+#                    | ComplexType id = Expression
 #                    | id = Expression
 #
-#   SuperType        : list(Type) 
-#                    | ClusterSet 
-#                    | Type
+#   SimpleType       : type          ( registerset, clusterset, int, string, date )
 #
-#   ClusterSet       : clusterset(string, ClusterSet) 
-#                    | clusterset(string, registerset)
-#
-#   Type             : registerset 
-#                    | int 
-#                    | string
-#                    | date
-#
+#   ComplexType      : list(type)
+#                                      
 #   Expression       : group Register_set by Collection_list
 #                    | users ( Register_set )
 #                    | towers ( Register_set )
 #                    | count ( Register_set )
 #                    | Register_set
-# 
+#
 #   Register_set     : id 
 #                    | ALL
 #                    | filter Register_set by Predicate_list
@@ -70,7 +63,8 @@ def p_statement_list(p):
 
 def p_variable(p):
     '''
-    Statement : SuperType ID EQUAL Expression
+    Statement : SimpleType ID EQUAL Expression
+              | ComplexType ID EQUAL Expression
               | ID EQUAL Expression
     '''
     if len(p) == 5:
@@ -80,37 +74,37 @@ def p_variable(p):
 
 def p_supertype_list(p):
     '''
-    SuperType : TYPE LPAREN Type RPAREN
+    ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
     p[0] = p[1] + p[2] + p[3] + p[4]
     
-def p_supertype_clusterset(p):
+""" def p_supertype_clusterset(p):
     '''
     SuperType : ClusterSet
     '''
-    p[0] = p[1]
+    p[0] = p[1] """
 
-def p_supertype_type(p):
+""" def p_supertype_type(p):
     '''
     SuperType : Type
     '''
-    p[0] = p[1]
+    p[0] = p[1] """
 
-def p_clusterset_clusterset(p):
+""" def p_clusterset_clusterset(p):
     '''
     ClusterSet : TYPE LPAREN TYPE COMMA ClusterSet RPAREN
     '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
-def p_clusterset_registerset(p):
+""" def p_clusterset_registerset(p):
     '''
     ClusterSet : TYPE LPAREN TYPE COMMA TYPE RPAREN
     '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
 def p_type(p):
     '''
-    Type : TYPE
+    SimpleType : TYPE
     '''
     p[0] = p[1]
 
@@ -215,7 +209,7 @@ def p_predicate(p):
         p[0]= LocationPredicate(p[3])
 
 def p_error(p):
-    print(f'Syntax error at {p.value!r}')
+    raise Exception(f"Syntax error at '{p.value}', line {p.lineno} (Index {p.lexpos}).")
 
 # Build the parser
 parser = yacc(debug=True)

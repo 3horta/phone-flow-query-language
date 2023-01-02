@@ -17,7 +17,7 @@ reserved = {
    'int' : 'TYPE',
    'string' : 'TYPE',
    'date' : 'TYPE',
-   'list' : 'TYPE',
+   'list' : 'COMPLEXTYPE',
    'clusterset' : 'TYPE'
 }
 
@@ -83,8 +83,7 @@ t_ignore  = ' \t'
 # Error handling rule
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1) 
-
+    raise Exception(f"Invalid token '{t.value[0]}' at line {t.lineno} (Index {t.lexpos}).")
 
 def find_column(input, token):
     '''

@@ -49,7 +49,7 @@ class TypeChecker:
             raise Exception(f"{node.registers.computed_type} not expected.")
         for item in node.collection:
             self.visit(item)
-            if item.computed_type is not Type.get('str_list'):
+            if item.computed_type is not Type.get('list(string)'):
                 raise Exception(f"{item.computed_type} not expected.")
         node.computed_type = Type.get('clusterset')
     
@@ -62,11 +62,11 @@ class TypeChecker:
             
     @visitor.when(ProvincesCollection)
     def visit(self, node: ProvincesCollection): 
-        node.computed_type = Type.get('str_list')
+        node.computed_type = Type.get('list(string)')
         
     @visitor.when(MunicipalitiesCollection)
     def visit(self, node: MunicipalitiesCollection): 
-        node.computed_type = Type.get('str_list')
+        node.computed_type = Type.get('list(string)')
     
     @visitor.when(FilterOp)
     def visit(self, node: FilterOp): 
@@ -83,15 +83,15 @@ class TypeChecker:
     def visit(self, node: Users):
         self.visit(node.registers)
         if node.registers.computed_type is not Type.get('registerset'):
-            raise Exception(f"{node.registers.computed_type} not expected.")
-        node.computed_type = Type.get('str_list')
+            raise Exception(f"'{node.registers.computed_type}' type not expected.")
+        node.computed_type = Type.get('list(string)')
         
     @visitor.when(Towers)
     def visit(self, node: Towers):
         self.visit(node.registers)
         if node.registers.computed_type is not Type.get('registerset'):
-            raise Exception(f"{node.registers.computed_type} not expected.")
-        node.computed_type = Type.get('str_list')
+            raise Exception(f"'{node.registers.computed_type}' type not expected.")
+        node.computed_type = Type.get('list(string)')
     
     @visitor.when(AllRegisters)
     def visit(self, node: AllRegisters): 
