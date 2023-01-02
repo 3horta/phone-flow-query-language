@@ -5,27 +5,37 @@ from abstract_syntax_tree import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : SuperType id = Expression ;
-#                    | id = Expression ;
+#   Program          : Statement; Program
+#                    | Statement;
 #
-#   SuperType        : list(Type) 
-#                    | ClusterSet 
-#                    | Type
+#   Statement        : Type id = Expression
+#                    | id = Expression
+#                    | function ReturnType id (Parameters) { FunctionBody }
 #
-#   ClusterSet       : clusterset(string, ClusterSet) 
-#                    | clusterset(string, registerset)
+#   ReturnType       : Type
+#                    | void
 #
-#   Type             : registerset 
-#                    | int 
-#                    | string 
-#                    | date
+#   FunctionBody     : Program
+#                    | Program ReturnStatement
 #
+#   ReturnStatement  : return Expression;
+#
+#   Parameters       : Type id, Parameters
+#                    | Type id
+#
+#   Type             : SimpleType
+#                    | ComplexType
+#
+#   SimpleType       : type
+#
+#   ComplexType      : list(type)
+#                                      
 #   Expression       : group Register_set by Collection_list
 #                    | users ( Register_set )
 #                    | towers ( Register_set )
 #                    | count ( Register_set )
 #                    | Register_set
-# 
+#
 #   Register_set     : id 
 #                    | ALL
 #                    | filter Register_set by Predicate_list
@@ -48,49 +58,113 @@ from abstract_syntax_tree import *
 # Write functions for each grammar rule which is
 # specified in the docstring.
 
+def p_program(p):
+    '''
+    Program : Statement_list
+    '''
+    p[0] = Program(p[1])
+
+def p_statement_list(p):
+    '''
+    Statement_list : Statement END Statement_list
+                   | Statement END
+    '''
+    if (len(p) == 4):
+        p[0] = [p[1]] + p[3]
+    elif (len(p) == 3):
+        p[0] = [p[1]]
+
+
 def p_variable(p):
     '''
-    Program : SuperType ID EQUAL Expression END
-            | ID EQUAL Expression END
+    Statement : Type ID EQUAL Expression
+              | ID EQUAL Expression
     '''
-    if len(p) == 6:
+    if len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
-    elif len(p) == 5:
+    elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
-
-def p_supertype_list(p):
+        
+def p_function(p):
     '''
-    SuperType : TYPE LPAREN Type RPAREN
+    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE FunctionBody RBRACE
+    '''
+    if len(p) == 10:
+        p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
+        
+def p_return_type(p):
+    '''
+    ReturnType : Type
+               | VOID
+    '''
+    p[0] = p[1]
+    
+def p_function_body(p):
+    '''
+    FunctionBody : Program
+                 | Program ReturnStatement
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [p[1]] + [p[2]]
+        
+def p_return_statement(p):
+    '''
+    ReturnStatement : RETURN Expression END
+    '''
+    p[0] = ReturnStatement(p[2])
+        
+def p_parameters(p):
+    '''
+    Parameters : Type ID COMMA Parameters
+               | Type ID
+    '''
+    if len(p) == 3:
+        p[0] = [(p[1], p[2])]
+    else:
+        p[0] = [(p[1], p[2])] + p[4]
+
+def p_type(p):
+    '''
+    Type : SimpleType
+         | ComplexType
+    '''
+    p[0] = p[1]
+
+def p_complextype(p):
+    '''
+    ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
     p[0] = p[1] + p[2] + p[3] + p[4]
     
-def p_supertype_clusterset(p):
+""" def p_supertype_clusterset(p):
     '''
     SuperType : ClusterSet
     '''
-    p[0] = p[1]
+    p[0] = p[1] """
 
-def p_supertype_type(p):
+""" def p_supertype_type(p):
     '''
     SuperType : Type
     '''
-    p[0] = p[1]
+    p[0] = p[1] """
 
-def p_clusterset_clusterset(p):
+""" def p_clusterset_clusterset(p):
     '''
     ClusterSet : TYPE LPAREN TYPE COMMA ClusterSet RPAREN
     '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
-def p_clusterset_registerset(p):
+""" def p_clusterset_registerset(p):
     '''
     ClusterSet : TYPE LPAREN TYPE COMMA TYPE RPAREN
     '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
-def p_type(p):
+def p_simpletype(p):
     '''
-    Type : TYPE
+    SimpleType : TYPE
     '''
     p[0] = p[1]
 
@@ -129,7 +203,7 @@ def p_registerset_id(p):
     '''
     Register_set : ID
     '''
-    p[0] = p[1]
+    p[0] = VariableCall(p[1])
     
 def p_all(p):
     '''
@@ -139,12 +213,12 @@ def p_all(p):
 
 def p_filter(p):
     '''
-    Register_set : FILTER ALL BY Predicate_list
+    Register_set : FILTER Register_set BY Predicate_list
     '''
     # p is a sequence that represents rule contents.
     #
-    #  Register_set : filter  ALL     by    Predicate_list
-    #      p[0]     :  p[1]   p[2]   p[3]      p[4]
+    #  Register_set : filter  Register_set     by    Predicate_list
+    #      p[0]     :  p[1]       p[2]        p[3]      p[4]
     # 
     p[0] = FilterOp(p[2], p[4])
     
@@ -154,7 +228,7 @@ def p_collection_list(p):
                     | Collection
     '''
     if (len(p) == 4):
-        p[0] = [p[1]].extend(p[3])
+        p[0] = [p[1]] + p[3]
     elif (len(p) == 2):
         p[0] = [p[1]]
         
@@ -165,7 +239,7 @@ def p_collection(p):
                 | LBRACE MUN RBRACE
     '''
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = VariableCall(p[1])
     elif p[2] == 'PROVINCES':
         p[0]= ProvincesCollection()
     elif p[2] =='MUNICIPALITIES':
@@ -177,7 +251,7 @@ def p_predicate_list(p):
                    | Predicate
     '''
     if (len(p) == 4):
-        p[0] = [p[1]].extend(p[3])
+        p[0] = [p[1]] + p[3]
     elif (len(p) == 2):
         p[0] = [p[1]]
 
@@ -188,18 +262,15 @@ def p_predicate(p):
                | ID
     '''
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = VariableCall(p[1])
     elif p[1] == 'time':
         p[0]= TimePredicate(p[3], p[5])
     elif p[1] =='location':
         p[0]= LocationPredicate(p[3])
 
 def p_error(p):
-    print(f'Syntax error at {p.value!r}')
+    raise Exception(f"Syntax error at '{p.value}', line {p.lineno} (Index {p.lexpos}).")
 
 # Build the parser
-parser = yacc()
+parser = yacc(debug=True)
 
-# Parse an expression
-ast = parser.parse('''filter ALL by time ( 1-12-3988 , 7-8-9878 );''')
-print(ast)

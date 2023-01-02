@@ -1,0 +1,205 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    DIFFER
+    EQUAL
+    ID
+    MULTIPLY
+    PLUS
+
+Grammar
+
+Rule 0     S' -> Program
+Rule 1     Program -> FILTER ALL BY Predicate_list END
+Rule 2     Predicate_list -> Predicate COMMA Predicate_list
+Rule 3     Predicate_list -> Predicate
+Rule 4     Predicate -> TIME LPAREN DATE COMMA DATE RPAREN
+Rule 5     Predicate -> LOCATION LPAREN STRING RPAREN
+
+Terminals, with rules where they appear
+
+ALL                  : 1
+BY                   : 1
+COMMA                : 2 4
+DATE                 : 4 4
+DIFFER               : 
+END                  : 1
+EQUAL                : 
+FILTER               : 1
+ID                   : 
+LOCATION             : 5
+LPAREN               : 4 5
+MULTIPLY             : 
+PLUS                 : 
+RPAREN               : 4 5
+STRING               : 5
+TIME                 : 4
+error                : 
+
+Nonterminals, with rules where they appear
+
+Predicate            : 2 3
+Predicate_list       : 1 2
+Program              : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . Program
+    (1) Program -> . FILTER ALL BY Predicate_list END
+
+    FILTER          shift and go to state 2
+
+    Program                        shift and go to state 1
+
+state 1
+
+    (0) S' -> Program .
+
+
+
+state 2
+
+    (1) Program -> FILTER . ALL BY Predicate_list END
+
+    ALL             shift and go to state 3
+
+
+state 3
+
+    (1) Program -> FILTER ALL . BY Predicate_list END
+
+    BY              shift and go to state 4
+
+
+state 4
+
+    (1) Program -> FILTER ALL BY . Predicate_list END
+    (2) Predicate_list -> . Predicate COMMA Predicate_list
+    (3) Predicate_list -> . Predicate
+    (4) Predicate -> . TIME LPAREN DATE COMMA DATE RPAREN
+    (5) Predicate -> . LOCATION LPAREN STRING RPAREN
+
+    TIME            shift and go to state 7
+    LOCATION        shift and go to state 8
+
+    Predicate_list                 shift and go to state 5
+    Predicate                      shift and go to state 6
+
+state 5
+
+    (1) Program -> FILTER ALL BY Predicate_list . END
+
+    END             shift and go to state 9
+
+
+state 6
+
+    (2) Predicate_list -> Predicate . COMMA Predicate_list
+    (3) Predicate_list -> Predicate .
+
+    COMMA           shift and go to state 10
+    END             reduce using rule 3 (Predicate_list -> Predicate .)
+
+
+state 7
+
+    (4) Predicate -> TIME . LPAREN DATE COMMA DATE RPAREN
+
+    LPAREN          shift and go to state 11
+
+
+state 8
+
+    (5) Predicate -> LOCATION . LPAREN STRING RPAREN
+
+    LPAREN          shift and go to state 12
+
+
+state 9
+
+    (1) Program -> FILTER ALL BY Predicate_list END .
+
+    $end            reduce using rule 1 (Program -> FILTER ALL BY Predicate_list END .)
+
+
+state 10
+
+    (2) Predicate_list -> Predicate COMMA . Predicate_list
+    (2) Predicate_list -> . Predicate COMMA Predicate_list
+    (3) Predicate_list -> . Predicate
+    (4) Predicate -> . TIME LPAREN DATE COMMA DATE RPAREN
+    (5) Predicate -> . LOCATION LPAREN STRING RPAREN
+
+    TIME            shift and go to state 7
+    LOCATION        shift and go to state 8
+
+    Predicate                      shift and go to state 6
+    Predicate_list                 shift and go to state 13
+
+state 11
+
+    (4) Predicate -> TIME LPAREN . DATE COMMA DATE RPAREN
+
+    DATE            shift and go to state 14
+
+
+state 12
+
+    (5) Predicate -> LOCATION LPAREN . STRING RPAREN
+
+    STRING          shift and go to state 15
+
+
+state 13
+
+    (2) Predicate_list -> Predicate COMMA Predicate_list .
+
+    END             reduce using rule 2 (Predicate_list -> Predicate COMMA Predicate_list .)
+
+
+state 14
+
+    (4) Predicate -> TIME LPAREN DATE . COMMA DATE RPAREN
+
+    COMMA           shift and go to state 16
+
+
+state 15
+
+    (5) Predicate -> LOCATION LPAREN STRING . RPAREN
+
+    RPAREN          shift and go to state 17
+
+
+state 16
+
+    (4) Predicate -> TIME LPAREN DATE COMMA . DATE RPAREN
+
+    DATE            shift and go to state 18
+
+
+state 17
+
+    (5) Predicate -> LOCATION LPAREN STRING RPAREN .
+
+    COMMA           reduce using rule 5 (Predicate -> LOCATION LPAREN STRING RPAREN .)
+    END             reduce using rule 5 (Predicate -> LOCATION LPAREN STRING RPAREN .)
+
+
+state 18
+
+    (4) Predicate -> TIME LPAREN DATE COMMA DATE . RPAREN
+
+    RPAREN          shift and go to state 19
+
+
+state 19
+
+    (4) Predicate -> TIME LPAREN DATE COMMA DATE RPAREN .
+
+    COMMA           reduce using rule 4 (Predicate -> TIME LPAREN DATE COMMA DATE RPAREN .)
+    END             reduce using rule 4 (Predicate -> TIME LPAREN DATE COMMA DATE RPAREN .)
+

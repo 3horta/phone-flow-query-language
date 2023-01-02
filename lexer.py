@@ -17,8 +17,11 @@ reserved = {
    'int' : 'TYPE',
    'string' : 'TYPE',
    'date' : 'TYPE',
-   'list' : 'TYPE',
-   'clusterset' : 'TYPE'
+   'list' : 'COMPLEXTYPE',
+   'clusterset' : 'TYPE',
+   'function' : 'FUNCTION',
+   'void' : 'VOID',
+   'return' : 'RETURN'
 }
 
 # List of token names. 
@@ -45,8 +48,8 @@ tokens = (
 
 # Regular expression rules for simple tokens
 t_STRING= r'"\w*"'
+t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 
-t_DATE= r'((\d\d?-)?\d\d?-)?\d{4}' #DUDA: Desde aqui lo convierto en Date de Python? Como hacen con numeros en ejemplo
 t_PLUS    = r'\+'
 t_MULTIPLY= r'\*'
 t_DIFFER  = r'\\'
@@ -58,6 +61,8 @@ t_COMMA= r','
 t_END= r';'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
+
+
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -81,8 +86,7 @@ t_ignore  = ' \t'
 # Error handling rule
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1) 
-
+    raise Exception(f"Invalid token '{t.value[0]}' at line {t.lineno} (Index {t.lexpos}).")
 
 def find_column(input, token):
     '''
@@ -96,4 +100,4 @@ def find_column(input, token):
 
 tokens= list(reserved.values()) + list(tokens)
 
-lexer = lex.lex()
+lexer = lex.lex(debug=True)
