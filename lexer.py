@@ -18,7 +18,9 @@ reserved = {
    'string' : 'TYPE',
    'date' : 'TYPE',
    'list' : 'COMPLEXTYPE',
-   'clusterset' : 'TYPE'
+   'clusterset' : 'TYPE',
+   'function' : 'FUNCTION',
+   'void' : 'VOID'
 }
 
 # List of token names. 

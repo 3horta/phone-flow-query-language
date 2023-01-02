@@ -1,11 +1,12 @@
-from abc import ABC, abstractmethod
 import datetime
-from api.pfql_api import TimeInterval
-from lang.context import Context
-from lang.type import Instance
-from lang.type import Type
+from abc import ABC, abstractmethod
 from calendar import monthrange
 from typing import List
+
+from api.pfql_api import TimeInterval
+from lang.context import Context
+from lang.type import FunctionInstance, Instance, Type
+
 
 class Node(ABC):
     @abstractmethod
@@ -24,12 +25,32 @@ class Program(Node):
             statement.evaluate(context)
 
 
+class FunctionDeclaration(Node):
+    def __init__(self, type, name, parameters, body) -> None:
+        self.type = type
+        self.name = name
+        self.parameters = parameters
+        self.body = body
+        
+    def evaluate(self, context: Context):
+        child_context: Context = context.make_child()
+        for parameter in self.parameters:
+            child_context.define(parameter[1], Instance(Type.get(parameter[0]), None))
+        context.define(self.name, FunctionInstance(child_context, self.type, self.body))
+        
+class ReturnStatement(Node):
+    def __init__(self, expression) -> None:
+        self.expression = expression
+    def evaluate(self, context: Context):
+        pass # ejecuta self.expression.evaluate. Me quedé aquí!!!!!!!!!
+
+
 class VariableCall(Node):
     def __init__(self, name: str) -> None:
         self.name = name
     
     def evaluate(self, context: Context):
-        context.resolve(self.name)
+        return context.resolve(self.name).value
         
     
 class VariableAssignment(Node):

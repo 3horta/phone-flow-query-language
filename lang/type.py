@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from typing import Dict, List
-from datetime import date
+
+from lang.context import Context
 
 
 class Type:
@@ -61,6 +62,12 @@ class Instance:
     def __init__(self, type: Type, value):
         self.type = type
         self.value = value
+        
+class FunctionInstance:
+    def __init__(self, context: Context, type: Type, body) -> None:
+        self.context = context
+        self.type = type
+        self.body = body
 
 
 pfql_string = Type('string')
@@ -70,6 +77,8 @@ pfql_registerset = Type('registerset')
 pfql_clusterset = Type('clusterset')
 
 pfql_str_list = Type('list(string)')
+
+pfql_void = Type('void')
 
 pfql_time_interval = Type('time_interval')
 pfql_time_interval.define_attribute('start_date', Type.get('date'))

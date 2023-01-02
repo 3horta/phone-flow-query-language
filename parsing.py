@@ -5,14 +5,28 @@ from abstract_syntax_tree import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : Statement ; Program
-#                    | Statement ;
+#   Program          : Statement; Program
+#                    | Statement;
 #
-#   Statement        : SimpleType id = Expression
-#                    | ComplexType id = Expression
+#   Statement        : Type id = Expression
 #                    | id = Expression
+#                    | function ReturnType id (Parameters) { FunctionBody }
 #
-#   SimpleType       : type          ( registerset, clusterset, int, string, date )
+#   ReturnType       : Type
+#                    | void
+#
+#   FunctionBody     : Program
+#                    | Program ReturnStatement
+#
+#   ReturnStatement  : return Expression;
+#
+#   Parameters       : Type id, Parameters
+#                    | Type id
+#
+#   Type             : SimpleType
+#                    | ComplexType
+#
+#   SimpleType       : type
 #
 #   ComplexType      : list(type)
 #                                      
@@ -63,16 +77,62 @@ def p_statement_list(p):
 
 def p_variable(p):
     '''
-    Statement : SimpleType ID EQUAL Expression
-              | ComplexType ID EQUAL Expression
+    Statement : Type ID EQUAL Expression
               | ID EQUAL Expression
     '''
     if len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
     elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
+        
+def p_function(p):
+    '''
+    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE FunctionBody RBRACE
+    '''
+    if len(p) == 10:
+        p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
+        
+def p_return_type(p):
+    '''
+    ReturnType : Type
+               | VOID
+    '''
+    p[0] = p[1]
+    
+def p_function_body(p):
+    '''
+    FunctionBody : Program
+                 | Program ReturnStatement
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [p[1]] + [p[2]]
+        
+def p_return_statement(p):
+    '''
+    ReturnStatement : RETURN Expression;
+    '''
+    p[0] = ReturnStatement(p[2])
+        
+def p_parameters(p):
+    '''
+    Parameters : Type ID COMMA Parameters
+               | Type ID
+    '''
+    if len(p) == 3:
+        p[0] = [(p[1], p[2])]
+    else:
+        p[0] = [(p[1], p[2])] + p[4]
 
-def p_supertype_list(p):
+def p_type(p):
+    '''
+    Type : SimpleType
+         | ComplexType
+    '''
+    p[0] = p[1]
+
+def p_complextype(p):
     '''
     ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
@@ -102,7 +162,7 @@ def p_supertype_list(p):
     '''
     p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
-def p_type(p):
+def p_simpletype(p):
     '''
     SimpleType : TYPE
     '''

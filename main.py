@@ -1,4 +1,4 @@
-from lang.type_checker import TypeChecker
+from lang.semantic_checker import SemanticChecker
 from parsing import parser
 from lang.context import Context
 # Parse an expression
@@ -18,6 +18,6 @@ ast = parser.parse(
     '''
     )
 
-type_checker = TypeChecker(Context())
+type_checker = SemanticChecker(Context())
 type_checker.visit(ast)
 ast.evaluate(Context())

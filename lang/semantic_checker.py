@@ -1,12 +1,20 @@
+from datetime import date
 from typing import List
-from abstract_syntax_tree import AllRegisters, Count, FilterOp, GroupOp, LocationPredicate, MunicipalitiesCollection, Node, Program, ProvincesCollection, TimePredicate, Towers, Users, VariableAssignment, VariableCall, VariableDeclaration
+
+import lang.visitor as visitor
+from abstract_syntax_tree import (AllRegisters, Count, FilterOp,
+                                  FunctionDeclaration, GroupOp,
+                                  LocationPredicate, MunicipalitiesCollection,
+                                  Node, Program, ProvincesCollection,
+                                  TimePredicate, Towers, Users,
+                                  VariableAssignment, VariableCall,
+                                  VariableDeclaration)
 from api.pfql_api import LOCATIONS
 from lang.context import Context
 from lang.type import Type
-import lang.visitor as visitor
-from datetime import date
 
-class TypeChecker:
+
+class SemanticChecker:
     def __init__(self, context: Context) -> None:
         self.context = context
         
@@ -18,6 +26,15 @@ class TypeChecker:
     def visit(self, node: Program):
         for statement in node.statements:
             self.visit(statement)
+            
+    @visitor.when(FunctionDeclaration)
+    def visit(self, node: FunctionDeclaration):
+        func = self.context.resolve(self.name)
+        if func: 
+            raise Exception(f"Defined function '{self.name}'.")
+        
+        # Me quedé aquí, nos fuimos a añadir return
+        
 
     @visitor.when(VariableAssignment)
     def visit(self, node: VariableAssignment):
