@@ -2,10 +2,11 @@
 *.csv
 *.ipynb
 
-
+.gitignore
 parser.out
 parsetab.py
 types.txt
+*.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
