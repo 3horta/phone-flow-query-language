@@ -13,21 +13,21 @@ import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
-from abstract_syntax_tree import Towers
+#from abstract_syntax_tree import MunicipalitiesCollection, Towers
 from utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
 from auxiliar_filter_methods import __towers_location_dataframes, convert_to_seconds, date_difference
 import os
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
-ID_REGION = None
+#ID_REGION = None
 
 
 ######################################## Region filter ######################################
 
 def filter_by_province(data: df, location : str) -> List[str]:
 
-    if ID_REGION == None:
-        ID_REGION = __towers_location_dataframes()
+    #if ID_REGION == None:
+    ID_REGION = __towers_location_dataframes()
 
     new_dataDF = preprocess_parquets(data)
 
@@ -41,8 +41,8 @@ def filter_by_province(data: df, location : str) -> List[str]:
 
 def filter_by_municipality(data: df, location : str) -> List[str]:
 
-    if ID_REGION == None:
-        ID_REGION = __towers_location_dataframes()
+    #if ID_REGION == None:
+    ID_REGION = __towers_location_dataframes()
 
     new_dataDF = preprocess_parquets(data)
 
@@ -92,16 +92,56 @@ def get_collection(collection_name : str) -> List[str]: #need to define how to l
     """
     pass
 
-def filter(set, filters):
+def group_by(data, collection):
+    pass
+
+def filter(data, filters):
     """
     Returns a new set filtered by filters.
     """
-    for filter in filters:
-        if "Time" in str(filter):
-            filter_by_time(set, )
+    filters = filters.split(",")
+    filteredDF = pd.DataFrame()
+    
+    for fil in filters:
+        filter = str(fil)
+        if "time" in  filter:
+            date_regex = re.compile(r'\d\d\d\d-\d\d-\d\d')
+            dates = date_regex.findall(filter)
+
+            if len(dates) == 1:
+                if "end" in filter:
+                    filteredDF = filter_by_date(data, "", dates[0].string)
+                else:
+                    filteredDF = filter_by_time(data, dates[0].string, "")
+            else:
+                filteredDF = filter_by_time(data, dates[0].string, dates[1])
+
+            time_regex = re.compile(r'\d\d:\d\d:\d\d')
+            times = time_regex.findall(filter)
+
+            if len(times) == 1:
+                if "end" in filter:
+                    filteredDF = filter_by_date(filteredDF, "", times[0])
+                else:
+                    filteredDF = filter_by_time(filteredDF, times[0], "")
+            else:
+                filteredDF = filter_by_time(filteredDF, times[0], times[1].string)
         
-        if "Region" in str(filter):
-            filter_by_municipality(set, )
+        if "location" in filter:
+            location = filter[9:-1]
+        
+            if "." in location:
+                index = location.index(".")
+                province = location[0:index]
+                municipality = location[index+1::]
+                filteredDF = filter_by_province(filteredDF, province)
+                filteredDF = filter_by_municipality(filteredDF, municipality)
+
+            else:
+                province = location
+                filteredDF = filter_by_municipality(filteredDF, province)
+
+        return filteredDF
 
 
 
@@ -149,24 +189,33 @@ def count(data):
 
     return data_countDF
 
-def charge_data(path = "Data/1/"):
+def group_by(data,  ):
+    pass 
+
+
+def charge_data(path = 'Data/1/'):
     folders = list(os.listdir(path))
     all_dataDF = pd.DataFrame()
-
+    print(folders)
     for folder in folders:
-        folder_data = charge_all_parquets_from_folder(path + folder)
+        folder_reg = re.compile(r'\d\d\d\d-\d\d-\d\d')
+        folder = folder_reg.search(folder)
+        print(folder)
+        if folder == None:
+            continue
+        print(path + folder.string)
+        folder_data = charge_all_parquets_from_folder(path + folder.string)
         all_dataDF = pd.concat([all_dataDF, folder_data])
 
     return all_dataDF
 
-d = charge_data("Data/1/2021-03-01/part-00000-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
-d2 = charge_data("Data/1/2021-03-01/part-00001-78181276-20b4-47ea-8cad-0ee84ef18436-c000.snappy.parquet")
+d = charge_data()
+
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")
 a = preprocess_parquets(d)
-b = preprocess_parquets(d2)
-
+b = filter(a, "location(LaHabana.Playa)")
 #filter_by_date("2021-03-01")
-c = union(a, b)
-print(intersection(a,c))
+#c = union(a, b)
+print(b)
 #endregion

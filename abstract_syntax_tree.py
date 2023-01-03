@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
 from atexit import register
+import datetime
+from api.classes import TimeInterval
 from lang.context import Context
-from lang.type import Instance, TimeInterval
+from lang.type import Instance
 from lang.type import Type
 from api.pfql_api import *
+from calendar import monthrange
+from typing import List
 
 class Node(ABC):
     @abstractmethod
@@ -13,6 +17,13 @@ class Node(ABC):
     @abstractmethod
     def evaluate(self, context: Context):
         pass
+    
+class Program(Node):
+    def __init__(self, statements: List[Node]) -> None:
+        self.statements = statements
+    def evaluate(self, context: Context):
+        for statement in self.statements:
+            statement.evaluate(context)
 
 
 class VariableCall(Node):
@@ -87,24 +98,40 @@ class AllRegisters(Node):
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # from pfql_api.py
     
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
-    def evaluate(self):
-        pass
+    def evaluate(self, context: Context):
+        pass # from pfql_api.py
 
 class Predicate(Node):
     pass
 
 class TimePredicate(Predicate):
     def __init__(self, start_date, end_date) -> None:
-        self.start_date = start_date
-        self.end_date = end_date
+        self.start_date = self.build_start_date(start_date)
+        self.end_date = self.build_end_date(end_date)
     def evaluate(self, context: Context):
         return TimeInterval(self.start_date, self.end_date)
+    def build_start_date(self, date: str):
+        splitted_date_str = date.split('-')
+        splitted_date = [int(item) for item in splitted_date_str]
+        if len(splitted_date) == 1:
+            return datetime.date(splitted_date[0], 1, 1)
+        if len(splitted_date) == 2:
+            return datetime.date(splitted_date[1], splitted_date[0], 1)
+        return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
+    def build_end_date(self, date: str):
+        splitted_date_str = date.split('-')
+        splitted_date = [int(item) for item in splitted_date_str]
+        if len(splitted_date) == 1:
+            return datetime.date(splitted_date[0], 12, 31)
+        if len(splitted_date) == 2:
+            return datetime.date(splitted_date[1], splitted_date[0], monthrange(splitted_date[1], splitted_date[0])[1])
+        return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
 
 class LocationPredicate(Predicate):
     def __init__(self, location) -> None:

@@ -39,12 +39,12 @@ def __towers_location_dataframes():
     #Charge cells-id and towers-id relation
     cellid_towid = {}
     local_path = "Data/cell_area/"
-    files = charge_all_parquets_from_folder(local_path)
+    cellid_towidDF = charge_all_parquets_from_folder(local_path)
 
-    cellid_towidDF = pd.DataFrame()
-    for file in files:
-        regDF=spark.read.parquet(f"{local_path + file}").toPandas()
-        cellid_towidDF = pd.concat((cellid_towidDF, regDF))
+    #cellid_towidDF = pd.DataFrame()
+    #for file in files:
+    #    regDF=spark.read.parquet(f"{local_path + file}").toPandas()
+    #    cellid_towidDF = pd.concat((cellid_towidDF, regDF))
         #idn = fileDF.select("id")
         #ida = fileDF.select("area_correlator")
         #cellid_towidDF = pd.concat(idn, ida)

@@ -11,8 +11,7 @@ import datetime as dt
 #region classes
 # 
 spark = SparkSession.builder.appName('pfql_class').getOrCreate() 
-
-class Time:
+class TimeInterval:
     def __init__(self, beginning_time : dt.datetime, ending_time : dt.datetime = None) -> None:
         """
         Initializes a time interval given datetimes limits.
@@ -30,7 +29,6 @@ class Time:
             ending_time = dt.datetime(beginning_time.year, beginning_time.month, beginning_time.day) + dt.timedelta(days = 1)
             interval = pd.Interval(pd.Timestamp(beginning_time), pd.Timestamp(ending_time), closed = 'left')
         return interval
-
 class Packet:
     def __init__(self, parq_path: string) -> None:
         path = parq_path

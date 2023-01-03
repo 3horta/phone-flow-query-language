@@ -22,7 +22,7 @@ def charge_all_parquets_from_folder(path):
             if '.crc' in parquet.string:
                 continue
             else:  
-                new_parquet = spark.read.parquet(parquet.string).toPandas()
+                new_parquet = spark.read.parquet(path + '/' + parquet.string).toPandas()
                 parquetsDF = pd.concat([parquetsDF, new_parquet])
 
 
