@@ -51,7 +51,7 @@ class SemanticChecker:
                 if sub_program.computed_type is not function_type:
                     raise Exception(f"Not expected '{sub_program.computed_type}' as return type.")
         if not has_return and function_type != Type.get('void'):
-            raise Exception(f"Return not expected.")
+            raise Exception(f"Return statement expected.")
         
         node.computed_type = function_type
     

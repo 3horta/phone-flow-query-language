@@ -13,7 +13,7 @@ ast = parser.parse(
     
     
     function list(string) testing_func(registerset z) {
-        return users(z);
+        list(string) d = users(z);
     };
     
     
