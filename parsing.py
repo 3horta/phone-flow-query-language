@@ -35,7 +35,7 @@ from abstract_syntax_tree import *
 #
 #   ComplexType      : list(type)
 #                                      
-#   Expression       : group Subexpression by Collection_list
+#   Expression       : group Subexpression by { Collection_list }
 #                    | users ( Subexpression )
 #                    | towers ( Subexpression )
 #                    | count ( Subexpression )
@@ -43,7 +43,7 @@ from abstract_syntax_tree import *
 #
 #   Subexpression    : id 
 #                    | ALL
-#                    | filter Subexpression by Predicate_list
+#                    | filter Subexpression by { Predicate_list }
 #                    | id ( Arguments )
 #
 #   Arguments        : Expression ExtraArguments
@@ -55,8 +55,8 @@ from abstract_syntax_tree import *
 #   Collection_list  : Collection, Collection_list
 #                    | Collection
 # 
-#   Collection       : { provinces }
-#                    | { municipalities }
+#   Collection       : provinces
+#                    | municipalities
 #                    | id
 # 
 #   Predicate_list   : Predicate, Predicate_list 
@@ -197,9 +197,9 @@ def p_simpletype(p):
 
 def p_group(p):
     '''
-    Expression : GROUP Subexpression BY Collection_list
+    Expression : GROUP Subexpression BY LBRACE Collection_list RBRACE
     '''
-    p[0] = GroupOp(p[2], p[4])
+    p[0] = GroupOp(p[2], p[5])
     
 def p_users(p):
     '''
@@ -240,14 +240,14 @@ def p_all(p):
 
 def p_filter(p):
     '''
-    Subexpression : FILTER Subexpression BY Predicate_list
+    Subexpression : FILTER Subexpression BY LBRACE Predicate_list RBRACE
     '''
     # p is a sequence that represents rule contents.
     #
     #  Subexpression : filter  Subexpression     by    Predicate_list
     #      p[0]     :  p[1]       p[2]        p[3]      p[4]
     
-    p[0] = FilterOp(p[2], p[4])
+    p[0] = FilterOp(p[2], p[5])
     
 def p_function_call(p):
     '''
@@ -294,15 +294,15 @@ def p_collection_list(p):
 def p_collection(p):
     '''
     Collection  : ID
-                | LBRACE PROV RBRACE
-                | LBRACE MUN RBRACE
+                | PROV
+                | MUN
     '''
-    if len(p) == 2:
+    if p[1].type == 'ID':
         p[0] = VariableCall(p[1])
-    elif p[2] == 'PROVINCES':
-        p[0]= ProvincesCollection()
-    elif p[2] =='MUNICIPALITIES':
-        p[0]= MunicipalitiesCollection()
+    elif p[1].type == 'PROV':
+        p[0] = ProvincesCollection()
+    elif p[1].type =='MUN':
+        p[0] = MunicipalitiesCollection()
 
 def p_predicate_list(p):
     '''

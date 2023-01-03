@@ -9,7 +9,7 @@ ast = parser.parse(
     #list(string) c = users(a);
     #list(string) d = towers(filter filter a by time(1200, 1230) by time(0111, 1000));
     #int number = count(a);
-    filter ALL by time(1200, 1230);
+    filter ALL by { time(1200, 1230) };
     
     
     function int pepe(int a, int b) {
