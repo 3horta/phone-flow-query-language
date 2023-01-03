@@ -44,7 +44,7 @@ def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
     #if ID_REGION == None:
     #    ID_REGION = __towers_location_dataframes()
     print(data)
-    new_dataDF = preprocess_parquets(data)
+    new_dataDF = preprocess_parquets(data).toPandas()
     print(new_dataDF)
     #new_dataDF = data
 
@@ -215,12 +215,13 @@ def charge_data(path = 'Data/1/'):
     return all_dataDF
 
 d = charge_data()
-
+b = preprocess_parquets(d)
+a = b.toPandas()
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")
-print(d)
-b = filter(d, "location(La Habana.Playa)")
+#print(d)
+#b = filter(d, "location(La Habana.Playa)")
 #filter_by_date("2021-03-01")
 #c = union(a, b)
-print(b)
+print(a)
 #endregion

@@ -3,6 +3,7 @@ from re import S
 import regex as re
 import pyspark as spark
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import explode
 import pandas as pd
 from math import modf
 
@@ -44,24 +45,19 @@ def separate_time(time):
     return first, second
 
 def preprocess_parquets(data):
-    codes = []
-    cells_id = []
-    times = []  
-    # Iterate over each row
-    for _, rows in data.iterrows():
-        # Create list for the current row
-        for _ in range(len(rows.cell_ids)):
-            codes.append(rows.code)
-            
-        cells_id.extend(rows.cell_ids)
-
-        times.extend(rows.times)
+    df = spark.createDataFrame(data)
+    df2 = df.select(df.code, explode(df.cell_ids))
+    df3 = df.select(df.code, explode(df.times))
+   
+    subdiv_rowsDF = df2.join(df3, df2.code == df3.code, 'inner')
+    subdiv_rowsDF.show()
      
-    subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
+    #subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
 
-    subdiv_rowsDF = pd.DataFrame(subdiv_rows)
+    #subdiv_rowsDF = pd.DataFrame(subdiv_rows)
     return subdiv_rowsDF
 
 def print_data_parquet(path, name):
     spark.sql(f"CREATE TEMPORARY VIEW {name} USING parquet OPTIONS (path \"{path}\")")
     spark.sql(f"SELECT * FROM {name}").show()
+
