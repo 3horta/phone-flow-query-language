@@ -297,12 +297,12 @@ def p_collection(p):
                 | PROV
                 | MUN
     '''
-    if p[1].type == 'ID':
-        p[0] = VariableCall(p[1])
-    elif p[1].type == 'PROV':
+    if p[1] == 'PROVINCES':
         p[0] = ProvincesCollection()
-    elif p[1].type =='MUN':
+    elif p[1] =='MUNICIPALITIES':
         p[0] = MunicipalitiesCollection()
+    else:
+        p[0] = VariableCall(p[1])
 
 def p_predicate_list(p):
     '''
