@@ -2,8 +2,8 @@ from datetime import date
 from typing import List
 
 import lang.visitor as visitor
-from abstract_syntax_tree import (AllRegisters, Count, FilterOp, FunctionCall,
-                                  FunctionDeclaration, GroupOp,
+from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
+                                  FunctionDeclaration, GroupOp, IfStatement,
                                   LocationPredicate, MunicipalitiesCollection,
                                   Node, Program, ProvincesCollection, ReturnStatement,
                                   TimePredicate, Towers, Users,
@@ -27,6 +27,35 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(IfStatement)
+    def visit(self, node: IfStatement):
+        self.visit(node.condition)
+        if node.condition.computed_type is not Type.get('bool'):
+            raise Exception(f"Given condition is not boolean.")
+        
+        child_context: Context = self.context.make_child()
+        child_semantic_checker = SemanticChecker(child_context)
+        for line in node.body:
+            child_semantic_checker.visit(line)
+        
+        node.computed_type = Type.get('void')
+    
+    @visitor.when(BinaryComparer)
+    def visit(self, node: BinaryComparer):
+        self.visit(node.left_expr)
+        self.visit(node.right_expr)
+        
+        if node.left_expr.computed_type == Type.get('void') or node.right_expr.computed_type == Type.get('void'):
+            raise Exception(f"{'void'} expression not admissible for comparison.")
+        
+        if node.left_expr.computed_type != node.right_expr.computed_type:
+            raise Exception("Expressions to compare must be the same type.")
+        
+        if node.comparer in ['>', '<', '>=', '<='] and node.left_expr.computed_type is not Type.get('int'):
+            raise Exception(f"Invalid expression type for '{node.comparer}' comparer.")
+        
+        node.computed_type = Type.get('bool')
+            
     @visitor.when(FunctionCall)
     def visit(self, node: FunctionCall):
         function: FunctionInstance = self.context.resolve(node.name)
@@ -45,8 +74,6 @@ class SemanticChecker:
         
         node.computed_type = function.type
         
-        
-    
     @visitor.when(FunctionDeclaration)
     def visit(self, node: FunctionDeclaration):
         func = self.context.resolve(node.name)

@@ -77,6 +77,8 @@ pfql_int = Type('int')
 pfql_registerset = Type('registerset')
 pfql_clusterset = Type('clusterset')
 
+pfql_bool = Type('bool')
+
 pfql_str_list = Type('list(string)')
 
 pfql_void = Type('void')

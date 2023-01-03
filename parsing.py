@@ -1,6 +1,7 @@
 from ply.yacc import yacc
-from lexer import *
+
 from abstract_syntax_tree import *
+from lexer import *
 
 # -----------------------------------------------------------------------------
 #   Grammar
@@ -10,13 +11,17 @@ from abstract_syntax_tree import *
 #
 #   Statement        : Type id = Expression
 #                    | id = Expression
-#                    | function ReturnType id (Parameters) { FunctionBody }
+#                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
+#                    | if ( Condition ) { Body }
+#
+#   Condition        : Expression comparer Expression
+#                    | bool
 #
 #   ReturnType       : Type
 #                    | void
 #
-#   FunctionBody     : Program
+#   Body             : Program
 #                    | Program ReturnStatement
 #                    | ReturnStatement
 #
@@ -32,6 +37,7 @@ from abstract_syntax_tree import *
 #                    | ComplexType
 #
 #   SimpleType       : type
+#                    | booltype
 #
 #   ComplexType      : list(type)
 #                                      
@@ -40,8 +46,9 @@ from abstract_syntax_tree import *
 #                    | towers ( Subexpression )
 #                    | count ( Subexpression )
 #                    | Subexpression
+#                    | bool
 #
-#   Subexpression    : id 
+#   Subexpression    : id
 #                    | ALL
 #                    | filter Subexpression by { Predicate_list }
 #                    | id ( Arguments )
@@ -99,13 +106,29 @@ def p_variable(p):
         p[0] = VariableAssignment(p[1], p[3])
     elif len(p) == 2:
         p[0] = p[1]
-        
+
 def p_function(p):
     '''
-    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE FunctionBody RBRACE
+    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE Body RBRACE
     '''
     if len(p) == 10:
         p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
+
+def p_if(p):
+    '''
+    Statement : IF LPAREN Condition RPAREN LBRACE Body RBRACE
+    '''
+    p[0] = IfStatement(p[3], p[6])
+        
+def p_condition(p):
+    '''
+    Condition : Expression GEQUAL Expression
+              | Expression LEQUAL Expression
+              | Expression EQUALEQUAL Expression
+              | Expression GREATER Expression
+              | Expression LESS Expression
+    '''
+    p[0] = BinaryComparer(p[1], p[2], p[3])
         
 def p_return_type(p):
     '''
@@ -114,11 +137,11 @@ def p_return_type(p):
     '''
     p[0] = p[1]
     
-def p_function_body(p):
+def p_body(p):
     '''
-    FunctionBody : Program
-                 | Program ReturnStatement
-                 | ReturnStatement
+    Body : Program
+         | Program ReturnStatement
+         | ReturnStatement
     '''
     if len(p) == 2:
         p[0] = [p[1]]
@@ -192,6 +215,7 @@ def p_complextype(p):
 def p_simpletype(p):
     '''
     SimpleType : TYPE
+               | BOOLTYPE
     '''
     p[0] = p[1]
 
@@ -222,6 +246,7 @@ def p_count(p):
 def p_expression_subexpression(p):
     '''
     Expression : Subexpression
+               | BOOL
     '''
     p[0] = p[1]
     
