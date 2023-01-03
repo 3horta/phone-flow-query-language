@@ -9,12 +9,15 @@ ast = parser.parse(
     #list(string) c = users(a);
     #list(string) d = towers(filter filter a by time(1200, 1230) by time(0111, 1000));
     #int number = count(a);
-    #a = filter a by time(1200, 1230);
+    filter ALL by time(1200, 1230);
     
     
-    function list(string) testing_func(registerset z) {
-        list(string) d = users(z);
+    function int pepe(int a, int b) {
+        list(string) d = users(ALL);
+        return count(ALL);
     };
+    
+    pepe(count(ALL), count(ALL));
     
     
     

@@ -2,7 +2,7 @@ from datetime import date
 from typing import List
 
 import lang.visitor as visitor
-from abstract_syntax_tree import (AllRegisters, Count, FilterOp,
+from abstract_syntax_tree import (AllRegisters, Count, FilterOp, FunctionCall,
                                   FunctionDeclaration, GroupOp,
                                   LocationPredicate, MunicipalitiesCollection,
                                   Node, Program, ProvincesCollection, ReturnStatement,
@@ -27,6 +27,26 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(FunctionCall)
+    def visit(self, node: FunctionCall):
+        function: FunctionInstance = self.context.resolve(node.name)
+        if not function: 
+            raise Exception(f"Not defined function '{self.name}'.")
+        
+        if len(node.args) != len(function.parameters):
+            raise Exception(f"{len(node.args)} arguments given to {node.name} function, {len(function.parameters)} arguments expected.")
+        
+        param_index = 0
+        for argument in node.args:
+            self.visit(argument)
+            if argument.computed_type is not Type.get(function.parameters[param_index][0]):
+                raise Exception(f"Not expected '{argument.computed_type}' as type of parameter number {param_index + 1}.")
+            param_index+=1
+        
+        node.computed_type = function.type
+        
+        
+    
     @visitor.when(FunctionDeclaration)
     def visit(self, node: FunctionDeclaration):
         func = self.context.resolve(node.name)
@@ -39,7 +59,7 @@ class SemanticChecker:
         for parameter in node.parameters:
             child_context.define(parameter[1], Type.get(parameter[0]))
         
-        func_instance = FunctionInstance(child_context, function_type, None)
+        func_instance = FunctionInstance(child_context, function_type, node.parameters, None)
         self.context.define(node.name, func_instance)
         
         child_semantic_checker = SemanticChecker(child_context)

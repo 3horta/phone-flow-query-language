@@ -64,10 +64,11 @@ class Instance:
         self.value = value
         
 class FunctionInstance:
-    def __init__(self, context: Context, type: Type, body) -> None:
+    def __init__(self, context: Context, type: Type, parameters, body) -> None:
         self.context = context
         self.type = type
         self.body = body
+        self.parameters = parameters
 
 
 pfql_string = Type('string')

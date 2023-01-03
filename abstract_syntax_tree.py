@@ -25,6 +25,15 @@ class Program(Node):
             statement.evaluate(context)
 
 
+class FunctionCall(Node):
+    def __init__(self, name, args) -> None:
+        self.name = name
+        self.args = args
+    def evaluate(self, context: Context):
+        function: FunctionInstance = context.resolve(self.name)
+        for line in function.body:
+            line.evaluate(function.context)
+
 class FunctionDeclaration(Node):
     def __init__(self, type, name, parameters, body) -> None:
         self.type = type
@@ -36,7 +45,7 @@ class FunctionDeclaration(Node):
         child_context: Context = context.make_child()
         for parameter in self.parameters:
             child_context.define(parameter[1], Instance(Type.get(parameter[0]), None))
-        context.define(self.name, FunctionInstance(child_context, self.type, self.body))
+        context.define(self.name, FunctionInstance(child_context, self.type, self.parameters, self.body))
         
 class ReturnStatement(Node):
     def __init__(self, expression) -> None:
