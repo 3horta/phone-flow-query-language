@@ -16,6 +16,7 @@ def __towers_location_dataframes():
     """Returns the relation between cells id and regions"""
 
     #Charge regions of towers-id
+    print("in")
     municipality_df = pd.read_csv("Data/municipios_tower.csv", engine="pyarrow")
     health_areas_df = pd.read_csv("Data/as_havana_tower.csv", engine="pyarrow")
     municipality_df.sort_values(by=['percent'], ascending=False)
@@ -54,7 +55,7 @@ def __towers_location_dataframes():
     #Creating relation between cell-id and region
     cellid_regionDF = towid_regionDF.merge(cellid_towidDF)
 
-    
+    cellid_regionDF.to_csv("./Data/cellID_region.csv")
     return cellid_regionDF
 
 
@@ -110,7 +111,9 @@ def time_difference(start_time: string, end_time: string):
                     for d in range(difference.days + 1)] 
     return date_list
 
-def convert_to_seconds(start_time: str, end_time: str):
-    start_time = int(start_time[0:2]) * 3600 + int(start_time[3:5]) * 60
-    end_time = int(end_time[0:2]) * 3600 + int(end_time[3:5]) * 60
-    return start_time, end_time
+def convert_to_seconds(time: str) -> int:
+
+    if len(time) > 0:
+        time = int(time[0:2]) * 3600 + int(time[3:5]) * 60
+
+    return time

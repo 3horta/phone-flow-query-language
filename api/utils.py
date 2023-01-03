@@ -52,23 +52,8 @@ def preprocess_parquets(data):
         # Create list for the current row
         for _ in range(len(rows.cell_ids)):
             codes.append(rows.code)
+            
         cells_id.extend(rows.cell_ids)
-
-        """ for t in rows.times:
-            time = str(t / 3600)
-
-            hours, mins = separate_time(time)
-
-            if int(mins[0:2]) > 60:
-                hours = int(hours) + 1
-
-                mins = str(int(mins[0:2]) - 60)
-
-            else:
-                mins = mins[0:2]
-    
-            time = f"{hours}:{mins}"
-            times.append(time)"""
 
         times.extend(rows.times)
      

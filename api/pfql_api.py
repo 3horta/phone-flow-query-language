@@ -2,7 +2,7 @@ from os import times
 from telnetlib import TSPEED
 from typing import List, Tuple
 import pandas as pd
-from pandas import DataFrame as df
+from pandas import DataFrame
 import datetime as dt
 from pyspark import *
 import pyspark as spark
@@ -19,15 +19,15 @@ from auxiliar_filter_methods import __towers_location_dataframes, convert_to_sec
 import os
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
-#ID_REGION = None
+ID_REGION = __towers_location_dataframes()
 
 
 ######################################## Region filter ######################################
 
-def filter_by_province(data: df, location : str) -> List[str]:
+def filter_by_province(data: DataFrame, location : str) -> DataFrame :
 
     #if ID_REGION == None:
-    ID_REGION = __towers_location_dataframes()
+    #ID_REGION = __towers_location_dataframes()
 
     new_dataDF = preprocess_parquets(data)
 
@@ -39,18 +39,22 @@ def filter_by_province(data: df, location : str) -> List[str]:
 
     return filtered_data
 
-def filter_by_municipality(data: df, location : str) -> List[str]:
+def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
 
     #if ID_REGION == None:
-    ID_REGION = __towers_location_dataframes()
-
+    #    ID_REGION = __towers_location_dataframes()
+    print(data)
     new_dataDF = preprocess_parquets(data)
+    print(new_dataDF)
+    #new_dataDF = data
 
     new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('Cells_id'))
 
     new_dataDF = new_dataDF.dropna()
     filtered_data = new_dataDF[new_dataDF.Municipality == location]
+    print(ID_REGION)
     filtered_data.head()
+
     print(filtered_data)
     return filtered_data
 
@@ -58,7 +62,7 @@ def filter_by_municipality(data: df, location : str) -> List[str]:
 ######################################## Date-Time filter #################################
 
 # time -> year - month - day
-def filter_by_date(star_date = "", end_date = ""):
+def filter_by_date(star_date : str = "" , end_date : str = ""):
     date_list = date_difference(star_date, end_date)
     date_filteredDF = pd.DataFrame()
     # It will filter all at Data folder
@@ -77,9 +81,11 @@ def filter_by_date(star_date = "", end_date = ""):
         
     return date_filteredDF
 
-def filter_by_time(data, start_time: str, end_time: str):
-    start_time, end_time = convert_to_seconds(start_time, end_time)
-    data = preprocess_parquets(data)
+def filter_by_time(data, start_time: str = "", end_time: str = ""):
+
+    start_time = convert_to_seconds(start_time)
+    end_time = convert_to_seconds(end_time)
+    data = preprocess_parquets(data) #if de si hay un alista
     filtered_data = data.loc[(data.Times >= start_time) & (data.Times <= end_time)]
 
     print(filtered_data)
@@ -92,16 +98,14 @@ def get_collection(collection_name : str) -> List[str]: #need to define how to l
     """
     pass
 
-def group_by(data, collection):
-    pass
 
 def filter(data, filters):
     """
     Returns a new set filtered by filters.
     """
     filters = filters.split(",")
-    filteredDF = pd.DataFrame()
-    
+    filteredDF = data
+    print(filteredDF)
     for fil in filters:
         filter = str(fil)
         if "time" in  filter:
@@ -110,11 +114,11 @@ def filter(data, filters):
 
             if len(dates) == 1:
                 if "end" in filter:
-                    filteredDF = filter_by_date(data, "", dates[0].string)
+                    filteredDF = filter_by_date("", dates[0].string)
                 else:
-                    filteredDF = filter_by_time(data, dates[0].string, "")
+                    filteredDF = filter_by_time(dates[0].string, "")
             else:
-                filteredDF = filter_by_time(data, dates[0].string, dates[1])
+                filteredDF = filter_by_time(dates[0].string, dates[1])
 
             time_regex = re.compile(r'\d\d:\d\d:\d\d')
             times = time_regex.findall(filter)
@@ -134,12 +138,13 @@ def filter(data, filters):
                 index = location.index(".")
                 province = location[0:index]
                 municipality = location[index+1::]
-                filteredDF = filter_by_province(filteredDF, province)
+                #filteredDF = filter_by_province(filteredDF, province)
                 filteredDF = filter_by_municipality(filteredDF, municipality)
+
 
             else:
                 province = location
-                filteredDF = filter_by_municipality(filteredDF, province)
+                filteredDF = filter_by_province(filteredDF, province)
 
         return filteredDF
 
@@ -213,8 +218,8 @@ d = charge_data()
 
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")
-a = preprocess_parquets(d)
-b = filter(a, "location(LaHabana.Playa)")
+print(d)
+b = filter(d, "location(La Habana.Playa)")
 #filter_by_date("2021-03-01")
 #c = union(a, b)
 print(b)
