@@ -213,7 +213,8 @@ class TimePredicate(Predicate):
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
 
     def evaluate(self, context: Context):
-        return TimeInterval(self.start_date, self.end_date) 
+        pass
+        # return TimeInterval(self.start_date, self.end_date) 
         # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):
