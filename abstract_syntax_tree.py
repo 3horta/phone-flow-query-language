@@ -67,6 +67,7 @@ class FunctionCall(Node):
             if line is ReturnStatement:
                 return line.evaluate(function.context)
             line.evaluate(function.context)
+        return
             
 
 class FunctionDeclaration(Node):
@@ -122,50 +123,70 @@ class GroupOp(Node):
         self.registers = registers
         self.collection = collection
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
+        registers= self.registers.evaluate(context)
+        collection=[]
+        for c in self.collection:
+            collection.append(c.evaluate(context))
+
+        # result = Metodo_group_de_API(registers:DataFrame, collection: List)
+        # return result
+
         
 class FilterOp(Node):
     def __init__(self, registers, predicates) -> None:
         self.registers = registers
         self.predicates = predicates
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
+        registers= self.registers.evaluate(context)
+        predicates=[]
+        for pred in self.predicates:
+            predicates.append(pred.evaluate(context))
+
+        # result = Metodo_filter_de_API(registers:DataFrame, predicates: List)
+        # return result
     
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
+        register = self.registers.evaluate(context)
+        # result = Metodo_get_users_de_API(register:DataFrame)
+
 
 class Towers(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
+        register = self.registers.evaluate(context)
+        # result = Metodo_get_towers_de_API(register:DataFrame)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
+        register = self.registers.evaluate(context)
+        # result = Metodo_count_de_API(register:DataFrame)
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        pass # from pfql_api.py
+        # result = get_ALL_de_API
+        pass
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        pass # from pfql_api.py
+        # result = get_Provinces_de_API   Nota: Devuelve Lista de string Ex: ["La Habana", "Cienfuegos",...]
+        pass
     
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        pass # from pfql_api.py
+        # result = get_Municipalities_de_API   Nota: Devuelve Lista de string Ex: ["La Habana.Playa", "Matanzas.Cardenas",...]
+        pass
 
 class Predicate(Node):
     pass
@@ -174,8 +195,7 @@ class TimePredicate(Predicate):
     def __init__(self, start_date, end_date) -> None:
         self.start_date = self.build_start_date(start_date)
         self.end_date = self.build_end_date(end_date)
-    def evaluate(self, context: Context):
-        return TimeInterval(self.start_date, self.end_date)
+    
     def build_start_date(self, date: str):
         splitted_date_str = date.split('-')
         splitted_date = [int(item) for item in splitted_date_str]
@@ -192,6 +212,10 @@ class TimePredicate(Predicate):
         if len(splitted_date) == 2:
             return datetime.date(splitted_date[1], splitted_date[0], monthrange(splitted_date[1], splitted_date[0])[1])
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
+
+    def evaluate(self, context: Context):
+        return TimeInterval(self.start_date, self.end_date) 
+        # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):
     def __init__(self, location) -> None:
