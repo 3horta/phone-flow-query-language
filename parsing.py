@@ -18,13 +18,26 @@ from lexer import *
 #  
 #   Assignable       : Expression
 #                    | Literal
+#                    | ArithmeticOp
+#
+#   ArithmeticOp     : ArithmeticOp + NumLit
+#                    | ArithmeticOp - NumLit
+#                    | NumLit
+#                    | ArithmeticOp + id
+#                    | ArithmeticOp - id
+#                    | id + id
+#                    | id - id
+#                    | id + NumLit
+#                    | id - NumLit
+#
+#   NumLit           : ( ArithmeticOp )
+#                    | num
 #
 #   Literal          : bool
-#                    | num
 #                    | CollectionLit
 #
 #
-#   Condition        : Expression comparer Expression
+#   Condition        : Assignable comparer Assignable
 #                    | bool
 #
 #   ReturnType       : Type
@@ -34,7 +47,7 @@ from lexer import *
 #                    | Program ReturnStatement
 #                    | ReturnStatement
 #
-#   ReturnStatement  : return Expression;
+#   ReturnStatement  : return Assignable;
 #
 #   Parameters       : Type id ExtraParameters
 #                    | epsilon
@@ -124,14 +137,55 @@ def p_asignable(p):
     '''
     Assignable : Expression
                | Literal
+               | ArithmeticOp
     '''
-    
     p[0] = p[1]
+    
+def p_arithmetic_op(p):
+    '''
+    ArithmeticOp : ArithmeticOp PLUS NumLit
+                 | ArithmeticOp MINUS NumLit
+                 | NumLit
+    '''
+    if len(p) == 4:
+        p[0] = ArithmeticOp(p[1], p[2], p[3])
+    else:
+        p[0] = p[1]
+        
+def p_arithmetic_op_id(p):
+    '''
+    ArithmeticOp : ArithmeticOp PLUS ID
+                 | ArithmeticOp MINUS ID
+    '''
+    p[0] = ArithmeticOp(p[1], p[2], VariableCall(p[3]))
+    
+def p_arithmetic_op_id_id(p):
+    '''
+    ArithmeticOp : ID PLUS ID
+                 | ID MINUS ID
+    '''
+    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], VariableCall(p[3]))
+    
+def p_arithmetic_op_id_numlit(p):
+    '''
+    ArithmeticOp : ID PLUS NumLit
+                 | ID MINUS NumLit
+    '''
+    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], p[3])
+
+def p_numlit(p):
+    '''
+    NumLit : LPAREN ArithmeticOp RPAREN
+           | NUM
+    '''
+    if len(p) == 4:
+        p[0] = p[2]
+    elif p.slice[1].type == 'NUM':
+        p[0] = Literal(p[1], p.slice[1].type)
 
 def p_literal(p):
     '''
     Literal : BOOL
-            | NUM
     '''
     p[0]= Literal(p[1], p.slice[1].type)
 
@@ -156,11 +210,11 @@ def p_if(p):
         
 def p_condition(p):
     '''
-    Condition : Expression GEQUAL Expression
-              | Expression LEQUAL Expression
-              | Expression EQUALEQUAL Expression
-              | Expression GREATER Expression
-              | Expression LESS Expression
+    Condition : Assignable GEQUAL Assignable
+              | Assignable LEQUAL Assignable
+              | Assignable EQUALEQUAL Assignable
+              | Assignable GREATER Assignable
+              | Assignable LESS Assignable
               | BOOL
     '''
     if len(p) == 2:
@@ -188,7 +242,7 @@ def p_body(p):
         
 def p_return_statement(p):
     '''
-    ReturnStatement : RETURN Expression END
+    ReturnStatement : RETURN Assignable END
     '''
     p[0] = ReturnStatement(p[2])
         
@@ -224,31 +278,6 @@ def p_complextype(p):
     ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
     p[0] = p[1] + p[2] + p[3] + p[4]
-    
-    
-""" def p_supertype_clusterset(p):
-    '''
-    SuperType : ClusterSet
-    '''
-    p[0] = p[1] """
-
-""" def p_supertype_type(p):
-    '''
-    SuperType : Type
-    '''
-    p[0] = p[1] """
-
-""" def p_clusterset_clusterset(p):
-    '''
-    ClusterSet : TYPE LPAREN TYPE COMMA ClusterSet RPAREN
-    '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
-    
-""" def p_clusterset_registerset(p):
-    '''
-    ClusterSet : TYPE LPAREN TYPE COMMA TYPE RPAREN
-    '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
 def p_simpletype(p):
     '''

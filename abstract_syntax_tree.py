@@ -8,8 +8,10 @@ from api.pfql_api import TimeInterval
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
-OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le}
+OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le, '+': operator.add, '-': operator.sub}
+
 TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
+
 class Node(ABC):
     @abstractmethod
     def __init__(self) -> None:
@@ -25,6 +27,18 @@ class Program(Node):
     def evaluate(self, context: Context):
         for statement in self.statements:
             statement.evaluate(context)
+            
+class ArithmeticOp(Node):
+    def __init__(self, left, op, right) -> None:
+        self.left = left
+        self.op = op
+        self.right = right
+        
+    def evaluate(self, context: Context):
+        l = self.left.evaluate(context)
+        r = self.right.evaluate(context)
+        return OPERATORS[self.op](l, r)
+        
             
 class Show(Node):
     def __init__(self, item) -> None:

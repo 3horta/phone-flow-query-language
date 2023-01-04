@@ -41,13 +41,17 @@ ast = parser.parse(
     # list(string) h = MUNICIPALITIES;
     # group ALL by {k};
 
-    function bool pepito() {
-        bool a = true;
-        return a;
+    function int pepito() {
+        int a = 1;
+        int b = 2;
+        int c = a + b;
+        return c - 2;
     };
-
-    # };
+    
     show(pepito());
+    
+    # int c = 1 + 2;
+    # show(c);
     '''
 )
 
