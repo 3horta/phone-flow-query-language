@@ -4,12 +4,12 @@ from lang.context import Context
 # Parse an expression
 ast = parser.parse(
     '''
-    #registerset a = filter ALL by time ( 1-12-3988 , 7-8-9878 ), time(1200, 1209); 
+    registerset a = filter ALL by time ( 1-3-2021, 3-4-2022 ); 
     #clusterset b = group a by {MUNICIPALITIES};
     #list(string) c = users(a);
     #list(string) d = towers(filter filter a by time(1200, 1230) by time(0111, 1000));
     #int number = count(a);
-    filter ALL by time(1200, 1230);
+    #filter ALL by time(1200, 1230);
     
     
     function int pepe(int a, int b) {
@@ -17,7 +17,8 @@ ast = parser.parse(
         return count(ALL);
     };
     
-    pepe(count(ALL), count(ALL));
+    pepe(count(ALL), count(a));
+    
     
     
     
