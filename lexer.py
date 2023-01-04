@@ -21,7 +21,11 @@ reserved = {
    'clusterset' : 'TYPE',
    'function' : 'FUNCTION',
    'void' : 'VOID',
-   'return' : 'RETURN'
+   'return' : 'RETURN',
+   'bool' : 'BOOLTYPE',
+   'true' : 'BOOL',
+   'false' : 'BOOL',
+   'if' : 'IF'
 }
 
 # List of token names. 
@@ -34,6 +38,12 @@ tokens = (
    'DIFFER',
 
    'ID',
+   
+   'EQUALEQUAL',
+   'GEQUAL',
+   'LEQUAL',
+   'LESS',
+   'GREATER',
 
    'LPAREN',
    'RPAREN',
@@ -53,6 +63,12 @@ t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 t_PLUS    = r'\+'
 t_MULTIPLY= r'\*'
 t_DIFFER  = r'\\'
+
+t_EQUALEQUAL = r'=='
+t_GEQUAL = r'>='
+t_LEQUAL = r'<='
+t_LESS = r'<'
+t_GREATER = r'>'
 
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'

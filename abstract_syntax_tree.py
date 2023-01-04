@@ -1,4 +1,5 @@
 import datetime
+import operator
 from abc import ABC, abstractmethod
 from calendar import monthrange
 from typing import List
@@ -7,6 +8,7 @@ from api.pfql_api import TimeInterval
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
+OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le}
 
 class Node(ABC):
     @abstractmethod
@@ -23,7 +25,42 @@ class Program(Node):
     def evaluate(self, context: Context):
         for statement in self.statements:
             statement.evaluate(context)
+            
+class IfStatement(Node):
+    def __init__(self, condition, body) -> None:
+        self.condition = condition
+        self.body = body
+    def evaluate(self, context: Context):
+        if not self.condition.evaluate(context):
+            return
+        child_context: Context = context.make_child()
+        for line in self.body:
+            if line is ReturnStatement:
+                return line.evaluate(child_context)
+            line.evaluate(child_context)
+    
+class BinaryComparer(Node):
+    def __init__(self, left_expr, comparer, right_expr) -> None:
+        self.left_expr = left_expr
+        self.comparer = comparer
+        self.right_expr = right_expr
+        
+    def evaluate(self, context: Context):
+        eval_left_expr = self.left_expr.evaluate(context)
+        eval_right_expr = self.right_expr.evaluate(context)
+        return OPERATORS[self.comparer](eval_left_expr, eval_right_expr)
 
+class FunctionCall(Node):
+    def __init__(self, name, args) -> None:
+        self.name = name
+        self.args = args
+    def evaluate(self, context: Context):
+        function: FunctionInstance = context.resolve(self.name)
+        for line in function.body:
+            if line is ReturnStatement:
+                return line.evaluate(function.context)
+            line.evaluate(function.context)
+            
 
 class FunctionDeclaration(Node):
     def __init__(self, type, name, parameters, body) -> None:
@@ -36,7 +73,7 @@ class FunctionDeclaration(Node):
         child_context: Context = context.make_child()
         for parameter in self.parameters:
             child_context.define(parameter[1], Instance(Type.get(parameter[0]), None))
-        context.define(self.name, FunctionInstance(child_context, self.type, self.body))
+        context.define(self.name, FunctionInstance(child_context, self.type, self.parameters, self.body))
         
 class ReturnStatement(Node):
     def __init__(self, expression) -> None:
@@ -71,10 +108,7 @@ class VariableDeclaration(Node):
         self.value = value
     def evaluate(self, context: Context):
         variable = context.resolve(self.name)
-        if not variable:
-            context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
-        else:
-            raise Exception(f"Defined variable '{self.name}'.")
+        context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
         
 class GroupOp(Node):
     def __init__(self, registers, collection) -> None:

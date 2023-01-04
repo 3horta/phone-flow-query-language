@@ -1,6 +1,7 @@
 from ply.yacc import yacc
-from lexer import *
+
 from abstract_syntax_tree import *
+from lexer import *
 
 # -----------------------------------------------------------------------------
 #   Grammar
@@ -10,47 +11,65 @@ from abstract_syntax_tree import *
 #
 #   Statement        : Type id = Expression
 #                    | id = Expression
-#                    | function ReturnType id (Parameters) { FunctionBody }
+#                    | function ReturnType id (Parameters) { Body }
+#                    | Expression
+#                    | if ( Condition ) { Body }
+#
+#   Condition        : Expression comparer Expression
+#                    | bool
 #
 #   ReturnType       : Type
 #                    | void
 #
-#   FunctionBody     : Program
+#   Body             : Program
 #                    | Program ReturnStatement
+#                    | ReturnStatement
 #
 #   ReturnStatement  : return Expression;
 #
-#   Parameters       : Type id, Parameters
-#                    | Type id
+#   Parameters       : Type id ExtraParameters
+#                    | epsilon
+#
+#   ExtraParameters  : , Type id ExtraParameters
+#                    | epsilon
 #
 #   Type             : SimpleType
 #                    | ComplexType
 #
 #   SimpleType       : type
+#                    | booltype
 #
 #   ComplexType      : list(type)
 #                                      
-#   Expression       : group Register_set by Collection_list
-#                    | users ( Register_set )
-#                    | towers ( Register_set )
-#                    | count ( Register_set )
-#                    | Register_set
+#   Expression       : group Subexpression by { Collection_list }
+#                    | users ( Subexpression )
+#                    | towers ( Subexpression )
+#                    | count ( Subexpression )
+#                    | Subexpression
+#                    | bool
 #
-#   Register_set     : id 
+#   Subexpression    : id
 #                    | ALL
-#                    | filter Register_set by Predicate_list
+#                    | filter Subexpression by { Predicate_list }
+#                    | id ( Arguments )
+#
+#   Arguments        : Expression ExtraArguments
+#                    | epsilon
+#
+#   ExtraArguments   : , Expression ExtraArguments
+#                    | epsilon
 #
 #   Collection_list  : Collection, Collection_list
 #                    | Collection
 # 
-#   Collection       : { provinces }
-#                    | { municipalities }
+#   Collection       : provinces
+#                    | municipalities
 #                    | id
 # 
 #   Predicate_list   : Predicate, Predicate_list 
 #                    | Predicate 
 #
-#   Predicate        : time ( date , date )
+#   Predicate        : time ( date, date )
 #                    | location ( string )
 #                    | id
 # -----------------------------------------------------------------------------
@@ -79,18 +98,37 @@ def p_variable(p):
     '''
     Statement : Type ID EQUAL Expression
               | ID EQUAL Expression
+              | Expression
     '''
     if len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
     elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
-        
+    elif len(p) == 2:
+        p[0] = p[1]
+
 def p_function(p):
     '''
-    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE FunctionBody RBRACE
+    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE Body RBRACE
     '''
     if len(p) == 10:
         p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
+
+def p_if(p):
+    '''
+    Statement : IF LPAREN Condition RPAREN LBRACE Body RBRACE
+    '''
+    p[0] = IfStatement(p[3], p[6])
+        
+def p_condition(p):
+    '''
+    Condition : Expression GEQUAL Expression
+              | Expression LEQUAL Expression
+              | Expression EQUALEQUAL Expression
+              | Expression GREATER Expression
+              | Expression LESS Expression
+    '''
+    p[0] = BinaryComparer(p[1], p[2], p[3])
         
 def p_return_type(p):
     '''
@@ -99,10 +137,11 @@ def p_return_type(p):
     '''
     p[0] = p[1]
     
-def p_function_body(p):
+def p_body(p):
     '''
-    FunctionBody : Program
-                 | Program ReturnStatement
+    Body : Program
+         | Program ReturnStatement
+         | ReturnStatement
     '''
     if len(p) == 2:
         p[0] = [p[1]]
@@ -117,13 +156,23 @@ def p_return_statement(p):
         
 def p_parameters(p):
     '''
-    Parameters : Type ID COMMA Parameters
-               | Type ID
+    Parameters : Type ID ExtraParameters
+               | empty
     '''
-    if len(p) == 3:
-        p[0] = [(p[1], p[2])]
+    if len(p) == 4:
+        p[0] = [(p[1], p[2])] + p[3]
     else:
-        p[0] = [(p[1], p[2])] + p[4]
+        p[0] = []
+        
+def p_extra_parameters(p):
+    '''
+    ExtraParameters : COMMA Type ID ExtraParameters
+                    | empty
+    '''
+    if len(p) == 5:
+        p[0] = [(p[2], p[3])] + p[4]
+    else:
+        p[0] = []
 
 def p_type(p):
     '''
@@ -137,6 +186,7 @@ def p_complextype(p):
     ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
     p[0] = p[1] + p[2] + p[3] + p[4]
+    
     
 """ def p_supertype_clusterset(p):
     '''
@@ -165,62 +215,96 @@ def p_complextype(p):
 def p_simpletype(p):
     '''
     SimpleType : TYPE
+               | BOOLTYPE
     '''
     p[0] = p[1]
 
 def p_group(p):
     '''
-    Expression : GROUP Register_set BY Collection_list
+    Expression : GROUP Subexpression BY LBRACE Collection_list RBRACE
     '''
-    p[0] = GroupOp(p[2], p[4])
+    p[0] = GroupOp(p[2], p[5])
     
 def p_users(p):
     '''
-    Expression : USER LPAREN Register_set RPAREN
+    Expression : USER LPAREN Subexpression RPAREN
     '''
     p[0] = Users(p[3])
 
 def p_towers(p):
     '''
-    Expression : TOWER LPAREN Register_set RPAREN
+    Expression : TOWER LPAREN Subexpression RPAREN
     '''
     p[0] = Towers(p[3])
     
 def p_count(p):
     '''
-    Expression : COUNT LPAREN Register_set RPAREN
+    Expression : COUNT LPAREN Subexpression RPAREN
     '''
     p[0] = Count(p[3])
 
-def p_expression_register_set(p):
+def p_expression_subexpression(p):
     '''
-    Expression : Register_set
+    Expression : Subexpression
+               | BOOL
     '''
     p[0] = p[1]
     
     
-def p_registerset_id(p):
+def p_subexpression_id(p):
     '''
-    Register_set : ID
+    Subexpression : ID
     '''
     p[0] = VariableCall(p[1])
     
 def p_all(p):
     '''
-    Register_set : ALL
+    Subexpression : ALL
     '''
     p[0] = AllRegisters()
 
 def p_filter(p):
     '''
-    Register_set : FILTER Register_set BY Predicate_list
+    Subexpression : FILTER Subexpression BY LBRACE Predicate_list RBRACE
     '''
     # p is a sequence that represents rule contents.
     #
-    #  Register_set : filter  Register_set     by    Predicate_list
+    #  Subexpression : filter  Subexpression     by    Predicate_list
     #      p[0]     :  p[1]       p[2]        p[3]      p[4]
-    # 
-    p[0] = FilterOp(p[2], p[4])
+    
+    p[0] = FilterOp(p[2], p[5])
+    
+def p_function_call(p):
+    '''
+    Subexpression : ID LPAREN Arguments RPAREN
+    '''
+    p[0] = FunctionCall(p[1], p[3])
+    
+def p_arguments(p):
+    '''
+    Arguments : Expression ExtraArguments
+              | empty
+    '''
+    if len(p) == 3:
+        p[0] = [p[1]] + p[2]
+    else:
+        p[0] = []
+        
+def p_extra_arguments(p):
+    '''
+    ExtraArguments : COMMA Expression ExtraArguments
+                   | empty
+    '''
+    if len(p) == 4:
+        p[0] = [p[2]] + p[3]
+    else:
+        p[0] = []
+
+def p_empty(p):
+    '''
+    empty :
+    '''
+    pass
     
 def p_collection_list(p):
     '''
@@ -229,21 +313,21 @@ def p_collection_list(p):
     '''
     if (len(p) == 4):
         p[0] = [p[1]] + p[3]
-    elif (len(p) == 2):
+    else:
         p[0] = [p[1]]
         
 def p_collection(p):
     '''
     Collection  : ID
-                | LBRACE PROV RBRACE
-                | LBRACE MUN RBRACE
+                | PROV
+                | MUN
     '''
-    if len(p) == 2:
+    if p[1] == 'PROVINCES':
+        p[0] = ProvincesCollection()
+    elif p[1] =='MUNICIPALITIES':
+        p[0] = MunicipalitiesCollection()
+    else:
         p[0] = VariableCall(p[1])
-    elif p[2] == 'PROVINCES':
-        p[0]= ProvincesCollection()
-    elif p[2] =='MUNICIPALITIES':
-        p[0]= MunicipalitiesCollection()
 
 def p_predicate_list(p):
     '''
@@ -252,7 +336,7 @@ def p_predicate_list(p):
     '''
     if (len(p) == 4):
         p[0] = [p[1]] + p[3]
-    elif (len(p) == 2):
+    else:
         p[0] = [p[1]]
 
 def p_predicate(p):
@@ -272,5 +356,5 @@ def p_error(p):
     raise Exception(f"Syntax error at '{p.value}', line {p.lineno} (Index {p.lexpos}).")
 
 # Build the parser
-parser = yacc(debug=True)
+parser = yacc()
 

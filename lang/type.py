@@ -64,10 +64,11 @@ class Instance:
         self.value = value
         
 class FunctionInstance:
-    def __init__(self, context: Context, type: Type, body) -> None:
+    def __init__(self, context: Context, type: Type, parameters, body) -> None:
         self.context = context
         self.type = type
         self.body = body
+        self.parameters = parameters
 
 
 pfql_string = Type('string')
@@ -75,6 +76,8 @@ pfql_date = Type('date')
 pfql_int = Type('int')
 pfql_registerset = Type('registerset')
 pfql_clusterset = Type('clusterset')
+
+pfql_bool = Type('bool')
 
 pfql_str_list = Type('list(string)')
 

@@ -2,8 +2,8 @@ from datetime import date
 from typing import List
 
 import lang.visitor as visitor
-from abstract_syntax_tree import (AllRegisters, Count, FilterOp,
-                                  FunctionDeclaration, GroupOp,
+from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
+                                  FunctionDeclaration, GroupOp, IfStatement,
                                   LocationPredicate, MunicipalitiesCollection,
                                   Node, Program, ProvincesCollection, ReturnStatement,
                                   TimePredicate, Towers, Users,
@@ -27,6 +27,53 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(IfStatement)
+    def visit(self, node: IfStatement):
+        self.visit(node.condition)
+        if node.condition.computed_type is not Type.get('bool'):
+            raise Exception(f"Given condition is not boolean.")
+        
+        child_context: Context = self.context.make_child()
+        child_semantic_checker = SemanticChecker(child_context)
+        for line in node.body:
+            child_semantic_checker.visit(line)
+        
+        node.computed_type = Type.get('void')
+    
+    @visitor.when(BinaryComparer)
+    def visit(self, node: BinaryComparer):
+        self.visit(node.left_expr)
+        self.visit(node.right_expr)
+        
+        if node.left_expr.computed_type == Type.get('void') or node.right_expr.computed_type == Type.get('void'):
+            raise Exception(f"{'void'} expression not admissible for comparison.")
+        
+        if node.left_expr.computed_type != node.right_expr.computed_type:
+            raise Exception("Expressions to compare must be the same type.")
+        
+        if node.comparer in ['>', '<', '>=', '<='] and node.left_expr.computed_type is not Type.get('int'):
+            raise Exception(f"Invalid expression type for '{node.comparer}' comparer.")
+        
+        node.computed_type = Type.get('bool')
+            
+    @visitor.when(FunctionCall)
+    def visit(self, node: FunctionCall):
+        function: FunctionInstance = self.context.resolve(node.name)
+        if not function: 
+            raise Exception(f"Not defined function '{self.name}'.")
+        
+        if len(node.args) != len(function.parameters):
+            raise Exception(f"{len(node.args)} arguments given to {node.name} function, {len(function.parameters)} arguments expected.")
+        
+        param_index = 0
+        for argument in node.args:
+            self.visit(argument)
+            if argument.computed_type is not Type.get(function.parameters[param_index][0]):
+                raise Exception(f"Not expected '{argument.computed_type}' as type of parameter number {param_index + 1}.")
+            param_index+=1
+        
+        node.computed_type = function.type
+        
     @visitor.when(FunctionDeclaration)
     def visit(self, node: FunctionDeclaration):
         func = self.context.resolve(node.name)
@@ -39,18 +86,19 @@ class SemanticChecker:
         for parameter in node.parameters:
             child_context.define(parameter[1], Type.get(parameter[0]))
         
-        func_instance = FunctionInstance(child_context, function_type, None)
+        func_instance = FunctionInstance(child_context, function_type, node.parameters, None)
         self.context.define(node.name, func_instance)
         
+        child_semantic_checker = SemanticChecker(child_context)
         has_return = False
         for sub_program in node.body:
-            self.visit(sub_program)
+            child_semantic_checker.visit(sub_program)
             if isinstance(sub_program, ReturnStatement):
                 has_return = True
                 if sub_program.computed_type is not function_type:
                     raise Exception(f"Not expected '{sub_program.computed_type}' as return type.")
         if not has_return and function_type != Type.get('void'):
-            raise Exception(f"Return not expected.")
+            raise Exception(f"Return statement expected.")
         
         node.computed_type = function_type
     
