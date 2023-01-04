@@ -2,10 +2,12 @@ from datetime import date
 from typing import List
 
 import lang.visitor as visitor
-from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
-                                  FunctionDeclaration, GroupOp, IfStatement, Literal,
-                                  LocationPredicate, MunicipalitiesCollection,
-                                  Node, Program, ProvincesCollection, ReturnStatement, Show,
+from abstract_syntax_tree import (AllRegisters, ArithmeticOp, BinaryComparer,
+                                  Count, FilterOp, FunctionCall,
+                                  FunctionDeclaration, GroupOp, IfStatement,
+                                  Literal, LocationPredicate,
+                                  MunicipalitiesCollection, Program,
+                                  ProvincesCollection, ReturnStatement, Show,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
                                   VariableDeclaration)
@@ -26,6 +28,15 @@ class SemanticChecker:
     def visit(self, node: Program):
         for statement in node.statements:
             self.visit(statement)
+            
+    @visitor.when(ArithmeticOp)
+    def visit(self, node: ArithmeticOp):
+        self.visit(node.left)
+        self.visit(node.right)
+        int_type = Type.get('int')
+        if node.left.computed_type is not int_type or node.right.computed_type is not int_type:
+            raise Exception("Arithmetic operation must have integer operands.")
+        node.computed_type = int_type
             
     @visitor.when(Show)
     def visit(self, node: Show):
