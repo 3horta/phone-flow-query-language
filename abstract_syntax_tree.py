@@ -181,15 +181,15 @@ class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        #result = get_Provinces_de_API   Nota: Devuelve Lista de string Ex: ["La Habana", "Cienfuegos",...]
-        pass
+        result = PROVINCIES
+        return result
     
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_Municipalities_de_API   Nota: Devuelve Lista de string Ex: ["La Habana.Playa", "Matanzas.Cardenas",...]
-        pass
+        result = MUNICIPALITIES
+        return result
 
 class Predicate(Node):
     pass
