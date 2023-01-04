@@ -19,25 +19,23 @@ class TimeInterval:
         self.interval = self.__fill_interval(beginning_time, ending_time)
         self.time = self.interval.length
     
-    def __fill_interval(self, beginning_time : dt.datetime, ending_time : dt.datetime):
+    def time_difference(self, start_time : dt.datetime, end_time : dt.datetime):
         """
         Fills time interval limits.
         """
-        if ending_time != None:
-            interval = pd.Interval(pd.Timestamp(beginning_time), pd.Timestamp(ending_time), closed = 'both')
-        else :
-            ending_time = dt.datetime(beginning_time.year, beginning_time.month, beginning_time.day) + dt.timedelta(days = 1)
-            interval = pd.Interval(pd.Timestamp(beginning_time), pd.Timestamp(ending_time), closed = 'left')
-        return interval
-class Packet:
-    def __init__(self, parq_path: string) -> None:
-        path = parq_path
-        date_time = self._get_time(parq_path)
+        time_list = []
+        if start_time == "": 
+            date_list.append(end_time)
 
-    def _get_time(path: string):
-        date_regex = re.compile(r'\d*-\d*-\d*')
-        date = date_regex.search(path)
-        hour_regex = re.compile(r'\d\d\d\d\d')
-        h = hour_regex.search(path)
-        hour = h[3] + h[4] + ":00:00"
-        #Devolver dia y hora
+        elif end_time == "":
+            date_list.append(start_time)
+
+        else:
+            start = dt.strptime(start_time, "%Y-%m-%d")
+            end = dt.strptime(end_time, "%Y-%m-%d")
+            difference = end - start
+
+
+            date_list = [(start + dt.timedelta(days=d)).strftime("%Y-%m-%d")
+                        for d in range(difference.days + 1)] 
+        return date_list

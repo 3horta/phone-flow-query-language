@@ -4,7 +4,8 @@ from lang.context import Context
 # Parse an expression
 ast = parser.parse(
     '''
-    registerset a = filter ALL by time ( 2021-03-01 );
+    registerset a = filter ALL by time ( 01-03-2021 ); 
+    
     
     
     

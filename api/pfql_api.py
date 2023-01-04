@@ -13,10 +13,12 @@ import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
+from api.classes import TimeInterval
 #from abstract_syntax_tree import MunicipalitiesCollection, Towers
 from api.utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
 from api.auxiliar_filter_methods import towers_location_dataframes, convert_to_seconds, date_difference
 import os
+
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 ID_REGION = towers_location_dataframes()
@@ -108,44 +110,16 @@ def filter(data, filters):
     filteredDF = data
     print(filteredDF)
     for fil in filters:
-        filter = str(fil)
-        if "time" in  filter:
-            date_regex = re.compile(r'\d\d\d\d-\d\d-\d\d')
-            dates = date_regex.findall(filter)
-
-            if len(dates) == 1:
-                if "end" in filter:
-                    filteredDF = filter_by_date("", dates[0].string)
-                else:
-                    filteredDF = filter_by_time(dates[0].string, "")
-            else:
-                filteredDF = filter_by_time(dates[0].string, dates[1])
-
-            time_regex = re.compile(r'\d\d:\d\d:\d\d')
-            times = time_regex.findall(filter)
-
-            if len(times) == 1:
-                if "end" in filter:
-                    filteredDF = filter_by_date(filteredDF, "", times[0])
-                else:
-                    filteredDF = filter_by_time(filteredDF, times[0], "")
-            else:
-                filteredDF = filter_by_time(filteredDF, times[0], times[1].string)
+        #filter = str(fil)
+        if isinstance(fil, TimeInterval):
+    
+            filteredDF = filter_by_time(str(fil.start_date), str(fil.end_date))
         
-        if "location" in filter:
-            location = filter[9:-1]
+       # if isinstance(fil, LocationPredicate):
         
-            if "." in location:
-                index = location.index(".")
-                province = location[0:index]
-                municipality = location[index+1::]
-                #filteredDF = filter_by_province(filteredDF, province)
-                filteredDF = filter_by_municipality(filteredDF, municipality)
+                
+       #     filteredDF = filter_by_municipality(filteredDF, fil.location)
 
-
-            else:
-                province = location
-                filteredDF = filter_by_province(filteredDF, province)
 
         return filteredDF
 
@@ -221,9 +195,9 @@ def charge_data(path = 'Data/1/'):
     """
     return data.toPandas()
 
-d = charge_data()
-b = preprocess_parquets(d)
-a = b.toPandas()
+#d = charge_data()
+#b = preprocess_parquets(d)
+#a = b.toPandas()
 
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")

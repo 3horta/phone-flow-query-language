@@ -96,7 +96,7 @@ def date_difference(start_date: string, end_date: string):
 ############################ TIME FILTER AUXILIAR ############################################
 
 def time_difference(start_time: string, end_time: string):
-    time_list = []
+    
     if start_time == "": 
         date_list.append(end_time)
 
@@ -108,8 +108,6 @@ def time_difference(start_time: string, end_time: string):
         end = datetime.strptime(end_time, "%Y-%m-%d")
         difference = end - start
 
-        start_time = datetime.strptime(start_time, '%H:%M')
-        end_time = datetime.strptime(end_time, '%H:%M')
 
         date_list = [(start + timedelta(days=d)).strftime("%Y-%m-%d")
                     for d in range(difference.days + 1)] 

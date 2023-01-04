@@ -1,6 +1,6 @@
 from typing import List
 from abstract_syntax_tree import AllRegisters, Count, FilterOp, GroupOp, LocationPredicate, MunicipalitiesCollection, Node, Program, ProvincesCollection, TimePredicate, Towers, Users, VariableAssignment, VariableCall, VariableDeclaration
-from api.pfql_api import LOCATIONS
+#from api.pfql_api import LOCATIONS
 from lang.context import Context
 from lang.type import Type
 import lang.visitor as visitor
