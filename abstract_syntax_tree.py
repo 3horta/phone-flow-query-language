@@ -25,6 +25,13 @@ class Program(Node):
     def evaluate(self, context: Context):
         for statement in self.statements:
             statement.evaluate(context)
+            
+class Show(Node):
+    def __init__(self, item) -> None:
+        self.item = item
+    def evaluate(self, context: Context):
+        value = self.item.evaluate(context)
+        print(value)
 
 class Literal(Node):
     def __init__(self, value, type) -> None:
@@ -42,7 +49,7 @@ class IfStatement(Node):
             return
         child_context: Context = context.make_child()
         for line in self.body:
-            if line is ReturnStatement:
+            if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
             line.evaluate(child_context)
     
@@ -65,7 +72,7 @@ class FunctionCall(Node):
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
         for line in function.body:
-            if line is ReturnStatement:
+            if isinstance(line, ReturnStatement):
                 return line.evaluate(function.context)
             line.evaluate(function.context)
             
@@ -212,7 +219,7 @@ class TimePredicate(Predicate):
 
     def evaluate(self, context: Context):
         pass
-        #return TimeInterval(self.start_date, self.end_date) 
+        # return TimeInterval(self.start_date, self.end_date) 
         # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):

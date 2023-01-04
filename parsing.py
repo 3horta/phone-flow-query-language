@@ -14,6 +14,7 @@ from lexer import *
 #                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
 #                    | if ( Condition ) { Body }
+#                    | show ( Assignable )
 #  
 #   Assignable       : Expression
 #                    | Literal
@@ -108,9 +109,11 @@ def p_variable(p):
     Statement : Type ID EQUAL Assignable
               | ID EQUAL Assignable
               | Expression
+              | SHOW LPAREN Assignable RPAREN
     '''
-
-    if len(p) == 5:
+    if len(p) == 5 and p[1] == 'show':
+        p[0] = Show(p[3])
+    elif len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
     elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])

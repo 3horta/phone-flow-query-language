@@ -5,7 +5,7 @@ import lang.visitor as visitor
 from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
                                   FunctionDeclaration, GroupOp, IfStatement, Literal,
                                   LocationPredicate, MunicipalitiesCollection,
-                                  Node, Program, ProvincesCollection, ReturnStatement,
+                                  Node, Program, ProvincesCollection, ReturnStatement, Show,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
                                   VariableDeclaration)
@@ -27,9 +27,13 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(Show)
+    def visit(self, node: Show):
+        self.visit(node.item)
+            
     @visitor.when(Literal)
     def visit(self, node:Literal):
-        node.computed_type= node.type
+        node.computed_type = node.type
         
     @visitor.when(IfStatement)
     def visit(self, node: IfStatement):
