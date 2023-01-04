@@ -38,6 +38,7 @@ tokens = (
    'DIFFER',
 
    'ID',
+   'NUM',
    
    'EQUALEQUAL',
    'GEQUAL',
@@ -58,7 +59,7 @@ tokens = (
 
 # Regular expression rules for simple tokens
 t_STRING= r'"\w*"'
-t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
+#t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 
 t_PLUS    = r'\+'
 t_MULTIPLY= r'\*'
@@ -78,7 +79,15 @@ t_END= r';'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
 
+def t_DATE(t):
+    r'((\d\d?-)?\d\d?-)?\d{4}'
+    return t
 
+
+def t_NUM(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'

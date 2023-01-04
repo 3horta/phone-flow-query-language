@@ -9,11 +9,19 @@ from lexer import *
 #   Program          : Statement; Program
 #                    | Statement;
 #
-#   Statement        : Type id = Expression
-#                    | id = Expression
+#   Statement        : Type id = Assignable
+#                    | id = Assignable
 #                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
 #                    | if ( Condition ) { Body }
+#  
+#   Assignable       : Expression
+#                    | Literal
+#
+#   Literal          : bool
+#                    | num
+#                    | CollectionLit
+#
 #
 #   Condition        : Expression comparer Expression
 #                    | bool
@@ -46,7 +54,6 @@ from lexer import *
 #                    | towers ( Subexpression )
 #                    | count ( Subexpression )
 #                    | Subexpression
-#                    | bool
 #
 #   Subexpression    : id
 #                    | ALL
@@ -62,10 +69,12 @@ from lexer import *
 #   Collection_list  : Collection, Collection_list
 #                    | Collection
 # 
-#   Collection       : provinces
-#                    | municipalities
+#   Collection       : CollectionLit
 #                    | id
-# 
+#
+#   CollectionLit    : provinces
+#                    | municipalities
+#
 #   Predicate_list   : Predicate, Predicate_list 
 #                    | Predicate 
 #
@@ -96,16 +105,38 @@ def p_statement_list(p):
 
 def p_variable(p):
     '''
-    Statement : Type ID EQUAL Expression
-              | ID EQUAL Expression
+    Statement : Type ID EQUAL Assignable
+              | ID EQUAL Assignable
               | Expression
     '''
+
     if len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
     elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
     elif len(p) == 2:
         p[0] = p[1]
+
+def p_asignable(p):
+    '''
+    Assignable : Expression
+               | Literal
+    '''
+    
+    p[0] = p[1]
+
+def p_literal(p):
+    '''
+    Literal : BOOL
+            | NUM
+    '''
+    p[0]= Literal(p[1], p.slice[1].type)
+
+def p_literal_collection(p):
+    '''
+    Literal : CollectionLit
+    '''
+    p[0] = p[1]
 
 def p_function(p):
     '''
@@ -246,7 +277,6 @@ def p_count(p):
 def p_expression_subexpression(p):
     '''
     Expression : Subexpression
-               | BOOL
     '''
     p[0] = p[1]
     
@@ -315,19 +345,29 @@ def p_collection_list(p):
         p[0] = [p[1]] + p[3]
     else:
         p[0] = [p[1]]
-        
+
+
 def p_collection(p):
     '''
     Collection  : ID
-                | PROV
-                | MUN
+    '''
+    p[0] = VariableCall(p[1])
+
+def p_collectio(p):
+    '''
+    Collection  : CollectionLit
+    '''
+    p[0]= p[1]
+
+def p_collection_literal(p):
+    '''
+    CollectionLit : PROV
+                  | MUN
     '''
     if p[1] == 'PROVINCES':
         p[0] = ProvincesCollection()
     elif p[1] =='MUNICIPALITIES':
         p[0] = MunicipalitiesCollection()
-    else:
-        p[0] = VariableCall(p[1])
 
 def p_predicate_list(p):
     '''
