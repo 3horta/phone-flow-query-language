@@ -2,7 +2,8 @@ Data/
 test.*
 # csv data
 *.csv
-
+*.parquet
+*.crc
 *.ipynb
 
 *.vscode

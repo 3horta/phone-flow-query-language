@@ -217,6 +217,7 @@ def charge_data(path = 'Data/1/'):
 d = charge_data()
 b = preprocess_parquets(d)
 a = b.toPandas()
+
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")
 #print(d)
