@@ -192,7 +192,7 @@ MUNICIPALITIES = ["Pinar del Río.Consolación del Sur", "Pinar del Río.Guane",
 "Artemisa.Alquízar", "Artemisa.Artemisa", "Artemisa.Bahía Honda", "Artemisa.Bauta", "Artemisa.Caimito", "Artemisa.Candelaria",
 "Artemisa.Guanajay", "Artemisa.Güira de Melena", "Artemisa.Mariel", "Artemisa.San Antonio de los Baños", "Artemisa.San Cristóbal",
 "La Habana.Arroyo Naranjo", "La Habana.Boyeros", "La Habana.Centro Habana", "La Habana.Cerro","La Habana.Cotorro", "La Habana.Diez de Octubre",
-"La Habana.Guanabacoa", "La HAbana.La Habana del Este", "La Habana.La Habana Vieja", "La Habana.La Lisa", "La Habana.Marianao",
+"La Habana.Guanabacoa", "La Habana.La Habana del Este", "La Habana.La Habana Vieja", "La Habana.La Lisa", "La Habana.Marianao",
 "La Habana.Playa", "La Habana.Plaza de la Revolución", "La Habana.Regla", "La Habana.San Miguel del Padrón",
 "Mayabeque.Batabanó", "Mayabeque.Bejucal", "Mayabeque.Güines", "Mayabeque.Jaruco", "Mayabeque.Madruga", "Mayabeque.Melena del Sur", 
 "Mayabeque.Nueva Paz", "Mayabeque.Quivicán", "Mayabeque.San José de las Lajas", "Mayabeque.San Nicolás", "Mayabeque.Santa Cruz del Norte"
