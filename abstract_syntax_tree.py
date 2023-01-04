@@ -61,13 +61,13 @@ class FunctionCall(Node):
     def __init__(self, name, args) -> None:
         self.name = name
         self.args = args
+
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
         for line in function.body:
             if line is ReturnStatement:
                 return line.evaluate(function.context)
             line.evaluate(function.context)
-        return
             
 
 class FunctionDeclaration(Node):
@@ -103,11 +103,9 @@ class VariableAssignment(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
-        if variable:
-            variable.value = self.value.evaluate(context)
-        else:
-            raise Exception('Not defined variable.')
+        variable= context.resolve(self.name)
+        new_value=self.value.evaluate(context)
+        variable.value = new_value
 
 class VariableDeclaration(Node):
     def __init__(self, type, name, value) -> None:
