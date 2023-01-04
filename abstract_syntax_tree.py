@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from atexit import register
 import datetime
+
+from matplotlib import collections
 from api.classes import TimeInterval
 from lang.context import Context
 from lang.type import Instance
@@ -69,31 +71,34 @@ class FilterOp(Node):
         self.registers = registers
         self.predicates = predicates
     def evaluate(self, context: Context):
-        pass # method from pfql_api.py
-    
+        filtered_data = filter(self.registers, self.predicates)
+        print(filtered_data)
+        print('end')
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        get_users_columns(self.registers)
+        users = get_users_columns(self.registers)
 
 class Towers(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        get_towers_columns(self.registers)
+        towers = get_towers_columns(self.registers)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self):
-        count(self.registers)
+        count = count(self.registers)
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self):
-        charge_data()
+        #return a pandas df
+        all_data = charge_data()
+        print(all_data)
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:

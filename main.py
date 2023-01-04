@@ -4,9 +4,7 @@ from lang.context import Context
 # Parse an expression
 ast = parser.parse(
     '''
-    registerset a = filter ALL by time ( 1-12-3988 , 7-8-9878 ); 
-    clusterset b = group a by {PROVINCES};
-    
+    registerset a = filter ALL by time ( 2021-03-01 );
     
     
     

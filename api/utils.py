@@ -6,6 +6,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode
 import pandas as pd
 from math import modf
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
 
 spark = SparkSession.builder.appName('pfql_utils').getOrCreate() 
 
@@ -45,17 +47,22 @@ def separate_time(time):
     return first, second
 
 def preprocess_parquets(data):
+
     df = spark.createDataFrame(data)
-    df2 = df.select(df.code, explode(df.cell_ids))
-    df3 = df.select(df.code, explode(df.times))
-   
-    subdiv_rowsDF = df2.join(df3, df2.code == df3.code, 'inner')
-    subdiv_rowsDF.show()
+    combine = F.udf(lambda x, y: list(zip(x, y)),
+              ArrayType(StructType([StructField("cell_ids", StringType()),
+                                    StructField("times", StringType())])))
+
+    explode_rowsDF = df.withColumn("new", combine("cell_ids", "times"))\
+       .withColumn("new", F.explode("new"))\
+       .select("code", F.col("new.cell_ids").alias("cell_ids"), F.col("new.times").alias("times"))
+    explode_rowsDF.show()
+
      
     #subdiv_rows = {'Codes': codes, 'Cells_id': cells_id, 'Times': times}
 
     #subdiv_rowsDF = pd.DataFrame(subdiv_rows)
-    return subdiv_rowsDF
+    return explode_rowsDF
 
 def print_data_parquet(path, name):
     spark.sql(f"CREATE TEMPORARY VIEW {name} USING parquet OPTIONS (path \"{path}\")")

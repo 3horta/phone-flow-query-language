@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from tomlkit import string
-from utils import charge_all_parquets_from_folder
+from api.utils import charge_all_parquets_from_folder
 import pandas as pd
 from pandas import DataFrame as df
 from typing import Dict, List, Tuple
@@ -12,13 +12,17 @@ from datetime import datetime, timedelta
 
 spark = SparkSession.builder.appName('pfql_auxiliar').getOrCreate() 
 
-def __towers_location_dataframes():
+def towers_location_dataframes():
+    cellid_regionDF= pd.read_csv("Data/cellID_region.csv", engine="pyarrow")
+    return cellid_regionDF
+
+def create_towers_location_csv():
     """Returns the relation between cells id and regions"""
 
     #Charge regions of towers-id
     print("in")
     municipality_df = pd.read_csv("Data/municipios_tower.csv", engine="pyarrow")
-    health_areas_df = pd.read_csv("Data/as_havana_tower.csv", engine="pyarrow")
+    #health_areas_df = pd.read_csv("Data/as_havana_tower.csv", engine="pyarrow")
     municipality_df.sort_values(by=['percent'], ascending=False)
 
     id_list = []
@@ -56,7 +60,7 @@ def __towers_location_dataframes():
     cellid_regionDF = towid_regionDF.merge(cellid_towidDF)
 
     cellid_regionDF.to_csv("./Data/cellID_region.csv")
-    return cellid_regionDF
+    #return cellid_regionDF
 
 
 def id_regions_from_one_parquet(path, cellid_towid):
@@ -117,3 +121,5 @@ def convert_to_seconds(time: str) -> int:
         time = int(time[0:2]) * 3600 + int(time[3:5]) * 60
 
     return time
+
+a = towers_location_dataframes()

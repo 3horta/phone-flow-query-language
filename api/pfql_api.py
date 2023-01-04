@@ -14,12 +14,12 @@ from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
 #from abstract_syntax_tree import MunicipalitiesCollection, Towers
-from utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
-from auxiliar_filter_methods import __towers_location_dataframes, convert_to_seconds, date_difference
+from api.utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
+from api.auxiliar_filter_methods import towers_location_dataframes, convert_to_seconds, date_difference
 import os
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
-ID_REGION = __towers_location_dataframes()
+ID_REGION = towers_location_dataframes()
 
 
 ######################################## Region filter ######################################
@@ -29,7 +29,7 @@ def filter_by_province(data: DataFrame, location : str) -> DataFrame :
     #if ID_REGION == None:
     #ID_REGION = __towers_location_dataframes()
 
-    new_dataDF = preprocess_parquets(data)
+    new_dataDF = preprocess_parquets(data).toPandas()
 
     new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('Cells_id'))
 
@@ -97,6 +97,7 @@ def get_collection(collection_name : str) -> List[str]: #need to define how to l
     Returns collection.
     """
     pass
+    #clusterset b = group a by {PROVINCES};
 
 
 def filter(data, filters):
@@ -199,6 +200,12 @@ def group_by(data,  ):
 
 
 def charge_data(path = 'Data/1/'):
+
+    data = spark.read.format("parquet")\
+    .option("recursiveFileLookup", "true")\
+    .load(path)
+    data.show()
+    """
     folders = list(os.listdir(path))
     all_dataDF = pd.DataFrame()
     print(folders)
@@ -211,8 +218,8 @@ def charge_data(path = 'Data/1/'):
         print(path + folder.string)
         folder_data = charge_all_parquets_from_folder(path + folder.string)
         all_dataDF = pd.concat([all_dataDF, folder_data])
-
-    return all_dataDF
+    """
+    return data.toPandas()
 
 d = charge_data()
 b = preprocess_parquets(d)
@@ -224,5 +231,5 @@ a = b.toPandas()
 #b = filter(d, "location(La Habana.Playa)")
 #filter_by_date("2021-03-01")
 #c = union(a, b)
-print(a)
+#print(a)
 #endregion
