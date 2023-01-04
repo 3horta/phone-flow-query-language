@@ -6,7 +6,12 @@ test.*
 *.crc
 *.ipynb
 
+.gitignore
+parser.out
+parsetab.py
+types.txt
 *.vscode
+test.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -171,5 +176,8 @@ cython_debug/
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 test.ipynb
 >>>>>>> dev-hansel
+=======
+>>>>>>> dev
