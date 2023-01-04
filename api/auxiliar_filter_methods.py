@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from tomlkit import string
-from api.utils import charge_all_parquets_from_folder
+from utils import charge_all_parquets_from_folder
 import pandas as pd
 from pandas import DataFrame as df
 from typing import Dict, List, Tuple

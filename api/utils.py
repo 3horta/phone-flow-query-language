@@ -48,7 +48,8 @@ def separate_time(time):
 
 def preprocess_parquets(data):
 
-    df = spark.createDataFrame(data)
+    #df = spark.createDataFrame(data)
+    df = data
     combine = F.udf(lambda x, y: list(zip(x, y)),
               ArrayType(StructType([StructField("cell_ids", StringType()),
                                     StructField("times", StringType())])))

@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from calendar import monthrange
 from typing import List
 
-from api.pfql_api import TimeInterval
+from api.pfql_api import *
+from api.classes import TimeInterval
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
@@ -128,8 +129,8 @@ class GroupOp(Node):
         for c in self.collection:
             collection.append(c.evaluate(context))
 
-        # result = Metodo_group_de_API(registers:DataFrame, collection: List)
-        # return result
+        result = group_by(registers, collection)
+        return result
 
         
 class FilterOp(Node):
@@ -142,15 +143,16 @@ class FilterOp(Node):
         for pred in self.predicates:
             predicates.append(pred.evaluate(context))
 
-        # result = Metodo_filter_de_API(registers:DataFrame, predicates: List)
-        # return result
+        result = filter(registers, predicates)
+        return result
     
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_get_users_de_API(register:DataFrame)
+        result = get_users_columns(register)
+        return result
 
 
 class Towers(Node):
@@ -158,27 +160,28 @@ class Towers(Node):
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_get_towers_de_API(register:DataFrame)
+        result = get_towers_columns(register)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_count_de_API(register:DataFrame)
+        result = count(register)
+        return result
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_ALL_de_API
-        pass
+        result = charge_data()
+        return result
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_Provinces_de_API   Nota: Devuelve Lista de string Ex: ["La Habana", "Cienfuegos",...]
+        #result = get_Provinces_de_API   Nota: Devuelve Lista de string Ex: ["La Habana", "Cienfuegos",...]
         pass
     
 class MunicipalitiesCollection(Node):

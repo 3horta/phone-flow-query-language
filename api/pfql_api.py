@@ -1,8 +1,9 @@
 from os import times
 from telnetlib import TSPEED
+from tokenize import String
 from typing import List, Tuple
 import pandas as pd
-from pandas import DataFrame
+from pandas import DataFrame, StringDtype
 import datetime as dt
 from pyspark import *
 import pyspark as spark
@@ -13,25 +14,25 @@ import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
 import regex as re
 from tomlkit import string
-from api.classes import TimeInterval
+from classes import TimeInterval
+import datetime
 #from abstract_syntax_tree import MunicipalitiesCollection, Towers
-from api.utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
-from api.auxiliar_filter_methods import towers_location_dataframes, convert_to_seconds, date_difference
+from utils import charge_all_parquets_from_folder, preprocess_parquets, print_data_parquet
+from auxiliar_filter_methods import time_difference, towers_location_dataframes, convert_to_seconds, date_difference
 import os
+from calendar import monthrange
 
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 ID_REGION = towers_location_dataframes()
-
+PROVINCIES = ["Pinar del Río", "Artemisa", "La Habana", "Mayabeque", "Matanzas", "Villa Clara", "Cienfuegos", "Sancti Spíritus", "Ciego de Ávila", "Camagüey", "Las Tunas", "Holguín", "Granma", "Santiago de Cuba", "Guantánamo"]
 
 ######################################## Region filter ######################################
 
 def filter_by_province(data: DataFrame, location : str) -> DataFrame :
 
-    #if ID_REGION == None:
-    #ID_REGION = __towers_location_dataframes()
 
-    new_dataDF = preprocess_parquets(data).toPandas()
+    #new_dataDF = preprocess_parquets(data).toPandas()
 
     new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('Cells_id'))
 
@@ -45,8 +46,8 @@ def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
 
     #if ID_REGION == None:
     #    ID_REGION = __towers_location_dataframes()
-    print(data)
-    new_dataDF = preprocess_parquets(data).toPandas()
+    #print(data)
+    #new_dataDF = preprocess_parquets(data).toPandas()
     print(new_dataDF)
     #new_dataDF = data
 
@@ -64,8 +65,8 @@ def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
 ######################################## Date-Time filter #################################
 
 # time -> year - month - day
-def filter_by_date(star_date : str = "" , end_date : str = ""):
-    date_list = date_difference(star_date, end_date)
+def filter_by_date(time_interval: TimeInterval):
+    date_list = time_interval.interval
     date_filteredDF = pd.DataFrame()
     # It will filter all at Data folder
     main_path = 'Data/1/'
@@ -74,12 +75,9 @@ def filter_by_date(star_date : str = "" , end_date : str = ""):
     print(folders)
     print(date_list)
     for folder in folders:
-        for d in date_list:
-            if folder == d :
-                parquets = charge_all_parquets_from_folder(main_path + folder)
-                for parquet in parquets:
-                    regDF = spark.read.parquet(f"{main_path}{folder}/{parquet}").toPandas()
-                    date_filteredDF = pd.concat((date_filteredDF, regDF))
+        if folder in date_list:
+            parquets = charge_data(main_path + folder)
+            date_filteredDF = pd.concat((date_filteredDF, parquets))
         
     return date_filteredDF
 
@@ -106,20 +104,29 @@ def filter(data, filters):
     """
     Returns a new set filtered by filters.
     """
-    filters = filters.split(",")
+    
     filteredDF = data
     print(filteredDF)
     for fil in filters:
-        #filter = str(fil)
+        
         if isinstance(fil, TimeInterval):
     
-            filteredDF = filter_by_time(str(fil.start_date), str(fil.end_date))
+            filteredDF = filter_by_date(fil)
         
-       # if isinstance(fil, LocationPredicate):
+        if isinstance(fil, str):
+            location = fil
         
-                
-       #     filteredDF = filter_by_municipality(filteredDF, fil.location)
+            if "." in location:
+                index = location.index(".")
+                province = location[0:index]
+                municipality = location[index+1::]
+                #filteredDF = filter_by_province(filteredDF, province)
+                filteredDF = filter_by_municipality(filteredDF, municipality)
 
+
+            else:
+                province = location  
+                filteredDF = filter_by_province(filteredDF, province)
 
         return filteredDF
 
@@ -153,25 +160,25 @@ def difference(A, B):
 
 def get_towers_columns(data):
     data = preprocess_parquets(data)
-    towerd_colsDF = data[['Cells_id']].drop_duplicates(keep=False)
+    towerd_colsDF = data[['Cells_id']].drop_duplicates(keep=False).tolist()
 
     return towerd_colsDF
 
 def get_users_columns(data):
     data = preprocess_parquets(data)
-    users_colsDF = data[['Codes']].drop_duplicates(keep=False)
+    users_colsDF = data[['Codes']].drop_duplicates(keep=False).tolist()
 
     return users_colsDF
 
 def count(data):
     data = preprocess_parquets(data)
-    data_countDF = data.count()
+    data_count = data.count()[0]
 
-    return data_countDF
+    return data_count
 
-def group_by(data,  ):
-    pass 
-
+def group_by(data, collections: list):
+    grouped = data.groupby( by = collections )
+    return grouped
 
 def charge_data(path = 'Data/1/'):
 
@@ -179,6 +186,8 @@ def charge_data(path = 'Data/1/'):
     .option("recursiveFileLookup", "true")\
     .load(path)
     data.show()
+
+    preprocess_parquets(data)
     """
     folders = list(os.listdir(path))
     all_dataDF = pd.DataFrame()
@@ -195,10 +204,9 @@ def charge_data(path = 'Data/1/'):
     """
     return data.toPandas()
 
-#d = charge_data()
+d = charge_data()
 #b = preprocess_parquets(d)
 #a = b.toPandas()
-
 #get_tower_by_municipality(d, "Playa")
 #filter_by_time(d, "02:00", "02:45")
 #print(d)
@@ -207,3 +215,28 @@ def charge_data(path = 'Data/1/'):
 #c = union(a, b)
 #print(a)
 #endregion
+
+class TimePredicatee():
+    def __init__(self, start_date, end_date) -> None:
+        self.start_date = self.build_start_date(start_date)
+        self.end_date = self.build_end_date(end_date)
+    
+    def build_start_date(self, date: str):
+        splitted_date_str = date.split('-')
+        splitted_date = [int(item) for item in splitted_date_str]
+        if len(splitted_date) == 1:
+            return datetime.date(splitted_date[0], 1, 1)
+        if len(splitted_date) == 2:
+            return datetime.date(splitted_date[1], splitted_date[0], 1)
+        return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
+    def build_end_date(self, date: str):
+        splitted_date_str = date.split('-')
+        splitted_date = [int(item) for item in splitted_date_str]
+        if len(splitted_date) == 1:
+            return datetime.date(splitted_date[0], 12, 31)
+        if len(splitted_date) == 2:
+            return datetime.date(splitted_date[1], splitted_date[0], monthrange(splitted_date[1], splitted_date[0])[1])
+        return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
+b = TimePredicatee("1-3-2021", "3-4-2022")
+c = TimeInterval(b.start_date, b.end_date)
+d = filter (d, [c])

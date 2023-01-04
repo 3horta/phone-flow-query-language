@@ -16,26 +16,17 @@ class TimeInterval:
         """
         Initializes a time interval given datetimes limits.
         """
-        self.interval = self.__fill_interval(beginning_time, ending_time)
-        self.time = self.interval.length
+        self.interval = self.__time_difference(beginning_time, ending_time)
+        self.time = len(self.interval)
     
-    def time_difference(self, start_time : dt.datetime, end_time : dt.datetime):
+    def __time_difference(self, start_time : dt.datetime, end_time : dt.datetime):
         """
         Fills time interval limits.
-        """
-        time_list = []
-        if start_time == "": 
-            date_list.append(end_time)
+        """ 
 
-        elif end_time == "":
-            date_list.append(start_time)
+        difference = end_time - start_time
 
-        else:
-            start = dt.strptime(start_time, "%Y-%m-%d")
-            end = dt.strptime(end_time, "%Y-%m-%d")
-            difference = end - start
-
-
-            date_list = [(start + dt.timedelta(days=d)).strftime("%Y-%m-%d")
+        date_list = [(start_time + dt.timedelta(days=d)).strftime("%Y-%m-%d")
                         for d in range(difference.days + 1)] 
+
         return date_list

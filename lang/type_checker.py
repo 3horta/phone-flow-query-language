@@ -116,10 +116,10 @@ class TypeChecker:
         if not isinstance(node.location, str):
             raise Exception(f"{node.location} is not a valid location.")
         province_municipality: List[str] = node.location.split('.')
-        if province_municipality[0] in LOCATIONS.keys():
-            if len(province_municipality) == 1 or province_municipality[1] in LOCATIONS[province_municipality[0]]:
-                node.computed_type = Type.get('string')
-                return
-        raise Exception(f"{node.location} is not a valid location.")
+        #if province_municipality[0] in LOCATIONS.keys():
+        #    if len(province_municipality) == 1 or province_municipality[1] in LOCATIONS[province_municipality[0]]:
+        #        node.computed_type = Type.get('string')
+        #        return
+        #raise Exception(f"{node.location} is not a valid location.")
         
     
