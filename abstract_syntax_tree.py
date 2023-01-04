@@ -9,7 +9,7 @@ from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
 OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le}
-
+TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
 class Node(ABC):
     @abstractmethod
     def __init__(self) -> None:
@@ -25,6 +25,13 @@ class Program(Node):
     def evaluate(self, context: Context):
         for statement in self.statements:
             statement.evaluate(context)
+
+class Literal(Node):
+    def __init__(self, value, type) -> None:
+        self.value= value
+        self.type= Type.get(TOKEN_TO_TYPE[type])
+    def evaluate(self, context: Context):
+        return self.value
             
 class IfStatement(Node):
     def __init__(self, condition, body) -> None:

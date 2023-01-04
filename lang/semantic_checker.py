@@ -3,7 +3,7 @@ from typing import List
 
 import lang.visitor as visitor
 from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
-                                  FunctionDeclaration, GroupOp, IfStatement,
+                                  FunctionDeclaration, GroupOp, IfStatement, Literal,
                                   LocationPredicate, MunicipalitiesCollection,
                                   Node, Program, ProvincesCollection, ReturnStatement,
                                   TimePredicate, Towers, Users,
@@ -27,6 +27,10 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(Literal)
+    def visit(self, node:Literal):
+        node.computed_type= node.type
+        
     @visitor.when(IfStatement)
     def visit(self, node: IfStatement):
         self.visit(node.condition)
