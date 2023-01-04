@@ -25,7 +25,8 @@ reserved = {
    'bool' : 'BOOLTYPE',
    'true' : 'BOOL',
    'false' : 'BOOL',
-   'if' : 'IF'
+   'if' : 'IF',
+   'show' : 'SHOW'
 }
 
 # List of token names. 
