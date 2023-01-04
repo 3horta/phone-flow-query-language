@@ -61,13 +61,13 @@ class FunctionCall(Node):
     def __init__(self, name, args) -> None:
         self.name = name
         self.args = args
+
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
         for line in function.body:
             if line is ReturnStatement:
                 return line.evaluate(function.context)
             line.evaluate(function.context)
-        return
             
 
 class FunctionDeclaration(Node):
@@ -103,11 +103,9 @@ class VariableAssignment(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
-        if variable:
-            variable.value = self.value.evaluate(context)
-        else:
-            raise Exception('Not defined variable.')
+        variable= context.resolve(self.name)
+        new_value=self.value.evaluate(context)
+        variable.value = new_value
 
 class VariableDeclaration(Node):
     def __init__(self, type, name, value) -> None:
@@ -115,7 +113,6 @@ class VariableDeclaration(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
         context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
         
 class GroupOp(Node):
@@ -214,7 +211,8 @@ class TimePredicate(Predicate):
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
 
     def evaluate(self, context: Context):
-        return TimeInterval(self.start_date, self.end_date) 
+        pass
+        #return TimeInterval(self.start_date, self.end_date) 
         # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):

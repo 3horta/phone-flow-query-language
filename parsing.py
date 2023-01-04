@@ -158,8 +158,12 @@ def p_condition(p):
               | Expression EQUALEQUAL Expression
               | Expression GREATER Expression
               | Expression LESS Expression
+              | BOOL
     '''
-    p[0] = BinaryComparer(p[1], p[2], p[3])
+    if len(p) == 2:
+        p[0]= Literal(p[1], p.slice[1].type)
+    else:
+        p[0] = BinaryComparer(p[1], p[2], p[3])
         
 def p_return_type(p):
     '''
