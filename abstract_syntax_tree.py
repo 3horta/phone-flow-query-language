@@ -107,7 +107,6 @@ class VariableDeclaration(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
         context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
         
 class GroupOp(Node):
