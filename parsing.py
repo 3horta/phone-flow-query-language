@@ -6,7 +6,9 @@ from lexer import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : Statement; Program
+#   Program          : StatementList
+#
+#   StatementList    : Statement; StatementList
 #                    | Statement;
 #
 #   Statement        : Type id = Assignable
@@ -44,8 +46,8 @@ from lexer import *
 #   ReturnType       : Type
 #                    | void
 #
-#   Body             : Program
-#                    | Program ReturnStatement
+#   Body             : StatementList
+#                    | StatementList ReturnStatement
 #                    | ReturnStatement
 #
 #   ReturnStatement  : return Assignable;
@@ -103,14 +105,14 @@ from lexer import *
 
 def p_program(p):
     '''
-    Program : Statement_list
+    Program : StatementList
     '''
     p[0] = Program(p[1])
 
 def p_statement_list(p):
     '''
-    Statement_list : Statement END Statement_list
-                   | Statement END
+    StatementList : Statement END StatementList
+                  | Statement END
     '''
     if (len(p) == 4):
         p[0] = [p[1]] + p[3]
@@ -232,14 +234,19 @@ def p_return_type(p):
     
 def p_body(p):
     '''
-    Body : Program
-         | Program ReturnStatement
-         | ReturnStatement
+    Body : ReturnStatement
+         | StatementList ReturnStatement
     '''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[0] = [p[1]] + [p[2]]
+        p[0] = p[1] + [p[2]]
+
+def p_body_no_ret(p):
+    '''
+    Body : StatementList
+    '''
+    p[0] = p[1]
         
 def p_return_statement(p):
     '''

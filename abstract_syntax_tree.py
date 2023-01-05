@@ -65,7 +65,9 @@ class IfStatement(Node):
         for line in self.body:
             if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
-            line.evaluate(child_context)
+            result=line.evaluate(child_context)
+            if result and isinstance(line, IfStatement):
+                return result
     
 class BinaryComparer(Node):
     def __init__(self, left_expr, comparer, right_expr) -> None:
@@ -85,14 +87,19 @@ class FunctionCall(Node):
 
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
+        child_context = function.context.make_child() 
         for i in range(len(function.parameters)):
             parameter = function.parameters[i]
             item = self.args[i].evaluate(context)
-            function.context.define(parameter[1], Instance(Type.get(parameter[0]), item))
+            child_context.define(parameter[1],Instance(Type.get(parameter[0]), item))
+            #function.context.define(parameter[1], Instance(Type.get(parameter[0]), item))
         for line in function.body:
             if isinstance(line, ReturnStatement):
-                return line.evaluate(function.context)
-            line.evaluate(function.context)
+                return line.evaluate(child_context)
+            result=line.evaluate(child_context)
+            ret_cond = not isinstance(result,type(None)) and isinstance(line, IfStatement)
+            if ret_cond:
+                return result
             
 
 class FunctionDeclaration(Node):
