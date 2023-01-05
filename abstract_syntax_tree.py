@@ -9,8 +9,10 @@ from api.classes import TimeInterval
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
-OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le}
+OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le, '+': operator.add, '-': operator.sub}
+
 TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
+
 class Node(ABC):
     @abstractmethod
     def __init__(self) -> None:
@@ -26,6 +28,25 @@ class Program(Node):
     def evaluate(self, context: Context):
         for statement in self.statements:
             statement.evaluate(context)
+            
+class ArithmeticOp(Node):
+    def __init__(self, left, op, right) -> None:
+        self.left = left
+        self.op = op
+        self.right = right
+        
+    def evaluate(self, context: Context):
+        l = self.left.evaluate(context)
+        r = self.right.evaluate(context)
+        return OPERATORS[self.op](l, r)
+        
+            
+class Show(Node):
+    def __init__(self, item) -> None:
+        self.item = item
+    def evaluate(self, context: Context):
+        value = self.item.evaluate(context)
+        print(value)
 
 class Literal(Node):
     def __init__(self, value, type) -> None:
@@ -43,9 +64,26 @@ class IfStatement(Node):
             return
         child_context: Context = context.make_child()
         for line in self.body:
-            if line is ReturnStatement:
+            if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
-            line.evaluate(child_context)
+            result=line.evaluate(child_context)
+            if result and isinstance(line, IfStatement):
+                return result
+            
+class WhileStatement(Node):
+    def __init__(self, condition, body) -> None:
+        self.condition = condition
+        self.body = body
+    def evaluate(self, context: Context):
+        
+        child_context: Context = context.make_child()
+        while self.condition.evaluate(context):
+            for line in self.body:
+                if isinstance(line, ReturnStatement):
+                    return line.evaluate(child_context)
+                result=line.evaluate(child_context)
+                if result and isinstance(line, IfStatement):
+                    return result
     
 class BinaryComparer(Node):
     def __init__(self, left_expr, comparer, right_expr) -> None:
@@ -62,13 +100,22 @@ class FunctionCall(Node):
     def __init__(self, name, args) -> None:
         self.name = name
         self.args = args
+
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
+        child_context = function.context.make_child() 
+        for i in range(len(function.parameters)):
+            parameter = function.parameters[i]
+            item = self.args[i].evaluate(context)
+            child_context.define(parameter[1],Instance(Type.get(parameter[0]), item))
+            #function.context.define(parameter[1], Instance(Type.get(parameter[0]), item))
         for line in function.body:
-            if line is ReturnStatement:
-                return line.evaluate(function.context)
-            line.evaluate(function.context)
-        return
+            if isinstance(line, ReturnStatement):
+                return line.evaluate(child_context)
+            result=line.evaluate(child_context)
+            ret_cond = not isinstance(result,type(None)) and isinstance(line, IfStatement)
+            if ret_cond:
+                return result
             
 
 class FunctionDeclaration(Node):
@@ -104,11 +151,9 @@ class VariableAssignment(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
-        if variable:
-            variable.value = self.value.evaluate(context)
-        else:
-            raise Exception('Not defined variable.')
+        variable= context.resolve(self.name)
+        new_value=self.value.evaluate(context)
+        variable.value = new_value
 
 class VariableDeclaration(Node):
     def __init__(self, type, name, value) -> None:
@@ -116,7 +161,6 @@ class VariableDeclaration(Node):
         self.name = name
         self.value = value
     def evaluate(self, context: Context):
-        variable = context.resolve(self.name)
         context.define(self.name, Instance(Type.get(self.type), self.value.evaluate(context)))
         
 class GroupOp(Node):
@@ -217,7 +261,8 @@ class TimePredicate(Predicate):
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
 
     def evaluate(self, context: Context):
-        return TimeInterval(self.start_date, self.end_date) 
+        pass
+        # return TimeInterval(self.start_date, self.end_date) 
         # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):

@@ -25,7 +25,9 @@ reserved = {
    'bool' : 'BOOLTYPE',
    'true' : 'BOOL',
    'false' : 'BOOL',
-   'if' : 'IF'
+   'if' : 'IF',
+   'show' : 'SHOW',
+   'while' : 'WHILE'
 }
 
 # List of token names. 
@@ -34,6 +36,7 @@ tokens = (
    'DATE',
 
    'PLUS',
+   'MINUS',
    'MULTIPLY',
    'DIFFER',
 
@@ -58,12 +61,13 @@ tokens = (
 
 
 # Regular expression rules for simple tokens
-t_STRING= r'"\w*"'
+t_STRING = r'"\w*"'
 #t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 
-t_PLUS    = r'\+'
-t_MULTIPLY= r'\*'
-t_DIFFER  = r'\\'
+t_PLUS = r'\+'
+t_MINUS = r'\-'
+t_MULTIPLY = r'\*'
+t_DIFFER = r'\\'
 
 t_EQUALEQUAL = r'=='
 t_GEQUAL = r'>='

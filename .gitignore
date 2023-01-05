@@ -1,7 +1,6 @@
 .DS_Store
 Data/
 test.*
-pfql_data
 # csv data
 *.csv
 *.parquet

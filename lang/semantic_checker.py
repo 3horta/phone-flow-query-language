@@ -2,14 +2,16 @@ from datetime import date
 from typing import List
 
 import lang.visitor as visitor
-from abstract_syntax_tree import (AllRegisters, BinaryComparer, Count, FilterOp, FunctionCall,
-                                  FunctionDeclaration, GroupOp, IfStatement, Literal,
-                                  LocationPredicate, MunicipalitiesCollection,
-                                  Node, Program, ProvincesCollection, ReturnStatement,
+from abstract_syntax_tree import (AllRegisters, ArithmeticOp, BinaryComparer,
+                                  Count, FilterOp, FunctionCall,
+                                  FunctionDeclaration, GroupOp, IfStatement,
+                                  Literal, LocationPredicate,
+                                  MunicipalitiesCollection, Program,
+                                  ProvincesCollection, ReturnStatement, Show,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
-                                  VariableDeclaration)
-#from api.pfql_api import LOCATIONS
+                                  VariableDeclaration, WhileStatement)
+from api.pfql_api import LOCATIONS
 from lang.context import Context
 from lang.type import FunctionInstance, Type
 
@@ -27,12 +29,38 @@ class SemanticChecker:
         for statement in node.statements:
             self.visit(statement)
             
+    @visitor.when(ArithmeticOp)
+    def visit(self, node: ArithmeticOp):
+        self.visit(node.left)
+        self.visit(node.right)
+        int_type = Type.get('int')
+        if node.left.computed_type is not int_type or node.right.computed_type is not int_type:
+            raise Exception("Arithmetic operation must have integer operands.")
+        node.computed_type = int_type
+            
+    @visitor.when(Show)
+    def visit(self, node: Show):
+        self.visit(node.item)
+            
     @visitor.when(Literal)
     def visit(self, node:Literal):
-        node.computed_type= node.type
+        node.computed_type = node.type
         
     @visitor.when(IfStatement)
     def visit(self, node: IfStatement):
+        self.visit(node.condition)
+        if node.condition.computed_type is not Type.get('bool'):
+            raise Exception(f"Given condition is not boolean.")
+        
+        child_context: Context = self.context.make_child()
+        child_semantic_checker = SemanticChecker(child_context)
+        for line in node.body:
+            child_semantic_checker.visit(line)
+        
+        node.computed_type = Type.get('void')
+        
+    @visitor.when(WhileStatement)
+    def visit(self, node: WhileStatement):
         self.visit(node.condition)
         if node.condition.computed_type is not Type.get('bool'):
             raise Exception(f"Given condition is not boolean.")

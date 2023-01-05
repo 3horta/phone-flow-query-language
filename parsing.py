@@ -6,7 +6,9 @@ from lexer import *
 # -----------------------------------------------------------------------------
 #   Grammar
 #
-#   Program          : Statement; Program
+#   Program          : StatementList
+#
+#   StatementList    : Statement; StatementList
 #                    | Statement;
 #
 #   Statement        : Type id = Assignable
@@ -14,26 +16,41 @@ from lexer import *
 #                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
 #                    | if ( Condition ) { Body }
+#                    | while ( Condition ) { Body }
+#                    | show ( Assignable )
 #  
 #   Assignable       : Expression
 #                    | Literal
+#                    | ArithmeticOp
+#
+#   ArithmeticOp     : ArithmeticOp + NumLit
+#                    | ArithmeticOp - NumLit
+#                    | NumLit
+#                    | ArithmeticOp + id
+#                    | ArithmeticOp - id
+#                    | id + id
+#                    | id - id
+#                    | id + NumLit
+#                    | id - NumLit
+#
+#   NumLit           : ( ArithmeticOp )
+#                    | num
 #
 #   Literal          : bool
-#                    | num
 #                    | CollectionLit
 #
 #
-#   Condition        : Expression comparer Expression
+#   Condition        : Assignable comparer Assignable
 #                    | bool
 #
 #   ReturnType       : Type
 #                    | void
 #
-#   Body             : Program
-#                    | Program ReturnStatement
+#   Body             : StatementList
+#                    | StatementList ReturnStatement
 #                    | ReturnStatement
 #
-#   ReturnStatement  : return Expression;
+#   ReturnStatement  : return Assignable;
 #
 #   Parameters       : Type id ExtraParameters
 #                    | epsilon
@@ -60,10 +77,10 @@ from lexer import *
 #                    | filter Subexpression by { Predicate_list }
 #                    | id ( Arguments )
 #
-#   Arguments        : Expression ExtraArguments
+#   Arguments        : Assignable ExtraArguments
 #                    | epsilon
 #
-#   ExtraArguments   : , Expression ExtraArguments
+#   ExtraArguments   : , Assignable ExtraArguments
 #                    | epsilon
 #
 #   Collection_list  : Collection, Collection_list
@@ -88,14 +105,14 @@ from lexer import *
 
 def p_program(p):
     '''
-    Program : Statement_list
+    Program : StatementList
     '''
     p[0] = Program(p[1])
 
 def p_statement_list(p):
     '''
-    Statement_list : Statement END Statement_list
-                   | Statement END
+    StatementList : Statement END StatementList
+                  | Statement END
     '''
     if (len(p) == 4):
         p[0] = [p[1]] + p[3]
@@ -108,36 +125,17 @@ def p_variable(p):
     Statement : Type ID EQUAL Assignable
               | ID EQUAL Assignable
               | Expression
+              | SHOW LPAREN Assignable RPAREN
     '''
-
-    if len(p) == 5:
+    if len(p) == 5 and p[1] == 'show':
+        p[0] = Show(p[3])
+    elif len(p) == 5:
         p[0] = VariableDeclaration(p[1], p[2], p[4])
     elif len(p) == 4:
         p[0] = VariableAssignment(p[1], p[3])
     elif len(p) == 2:
         p[0] = p[1]
-
-def p_asignable(p):
-    '''
-    Assignable : Expression
-               | Literal
-    '''
-    
-    p[0] = p[1]
-
-def p_literal(p):
-    '''
-    Literal : BOOL
-            | NUM
-    '''
-    p[0]= Literal(p[1], p.slice[1].type)
-
-def p_literal_collection(p):
-    '''
-    Literal : CollectionLit
-    '''
-    p[0] = p[1]
-
+        
 def p_function(p):
     '''
     Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE Body RBRACE
@@ -148,18 +146,89 @@ def p_function(p):
 def p_if(p):
     '''
     Statement : IF LPAREN Condition RPAREN LBRACE Body RBRACE
+              | WHILE LPAREN Condition RPAREN LBRACE Body RBRACE
     '''
-    p[0] = IfStatement(p[3], p[6])
+    if p[1] == 'if':
+        p[0] = IfStatement(p[3], p[6])
+    else:
+        p[0] = WhileStatement(p[3], p[6])
         
+
+def p_asignable(p):
+    '''
+    Assignable : Expression
+               | Literal
+               | ArithmeticOp
+    '''
+    p[0] = p[1]
+    
+def p_arithmetic_op(p):
+    '''
+    ArithmeticOp : ArithmeticOp PLUS NumLit
+                 | ArithmeticOp MINUS NumLit
+                 | NumLit
+    '''
+    if len(p) == 4:
+        p[0] = ArithmeticOp(p[1], p[2], p[3])
+    else:
+        p[0] = p[1]
+        
+def p_arithmetic_op_id(p):
+    '''
+    ArithmeticOp : ArithmeticOp PLUS ID
+                 | ArithmeticOp MINUS ID
+    '''
+    p[0] = ArithmeticOp(p[1], p[2], VariableCall(p[3]))
+    
+def p_arithmetic_op_id_id(p):
+    '''
+    ArithmeticOp : ID PLUS ID
+                 | ID MINUS ID
+    '''
+    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], VariableCall(p[3]))
+    
+def p_arithmetic_op_id_numlit(p):
+    '''
+    ArithmeticOp : ID PLUS NumLit
+                 | ID MINUS NumLit
+    '''
+    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], p[3])
+
+def p_numlit(p):
+    '''
+    NumLit : LPAREN ArithmeticOp RPAREN
+           | NUM
+    '''
+    if len(p) == 4:
+        p[0] = p[2]
+    elif p.slice[1].type == 'NUM':
+        p[0] = Literal(p[1], p.slice[1].type)
+
+def p_literal(p):
+    '''
+    Literal : BOOL
+    '''
+    p[0]= Literal(p[1], p.slice[1].type)
+
+def p_literal_collection(p):
+    '''
+    Literal : CollectionLit
+    '''
+    p[0] = p[1]
+
 def p_condition(p):
     '''
-    Condition : Expression GEQUAL Expression
-              | Expression LEQUAL Expression
-              | Expression EQUALEQUAL Expression
-              | Expression GREATER Expression
-              | Expression LESS Expression
+    Condition : Assignable GEQUAL Assignable
+              | Assignable LEQUAL Assignable
+              | Assignable EQUALEQUAL Assignable
+              | Assignable GREATER Assignable
+              | Assignable LESS Assignable
+              | BOOL
     '''
-    p[0] = BinaryComparer(p[1], p[2], p[3])
+    if len(p) == 2:
+        p[0]= Literal(p[1], p.slice[1].type)
+    else:
+        p[0] = BinaryComparer(p[1], p[2], p[3])
         
 def p_return_type(p):
     '''
@@ -170,18 +239,23 @@ def p_return_type(p):
     
 def p_body(p):
     '''
-    Body : Program
-         | Program ReturnStatement
-         | ReturnStatement
+    Body : ReturnStatement
+         | StatementList ReturnStatement
     '''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[0] = [p[1]] + [p[2]]
+        p[0] = p[1] + [p[2]]
+
+def p_body_no_ret(p):
+    '''
+    Body : StatementList
+    '''
+    p[0] = p[1]
         
 def p_return_statement(p):
     '''
-    ReturnStatement : RETURN Expression END
+    ReturnStatement : RETURN Assignable END
     '''
     p[0] = ReturnStatement(p[2])
         
@@ -217,31 +291,6 @@ def p_complextype(p):
     ComplexType : COMPLEXTYPE LPAREN TYPE RPAREN
     '''
     p[0] = p[1] + p[2] + p[3] + p[4]
-    
-    
-""" def p_supertype_clusterset(p):
-    '''
-    SuperType : ClusterSet
-    '''
-    p[0] = p[1] """
-
-""" def p_supertype_type(p):
-    '''
-    SuperType : Type
-    '''
-    p[0] = p[1] """
-
-""" def p_clusterset_clusterset(p):
-    '''
-    ClusterSet : TYPE LPAREN TYPE COMMA ClusterSet RPAREN
-    '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
-    
-""" def p_clusterset_registerset(p):
-    '''
-    ClusterSet : TYPE LPAREN TYPE COMMA TYPE RPAREN
-    '''
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] """
     
 def p_simpletype(p):
     '''
@@ -312,7 +361,7 @@ def p_function_call(p):
     
 def p_arguments(p):
     '''
-    Arguments : Expression ExtraArguments
+    Arguments : Assignable ExtraArguments
               | empty
     '''
     if len(p) == 3:
@@ -322,7 +371,7 @@ def p_arguments(p):
         
 def p_extra_arguments(p):
     '''
-    ExtraArguments : COMMA Expression ExtraArguments
+    ExtraArguments : COMMA Assignable ExtraArguments
                    | empty
     '''
     if len(p) == 4:
