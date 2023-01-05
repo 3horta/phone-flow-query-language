@@ -23,7 +23,7 @@ def filter_by_province(data: DataFrame, location : str) -> DataFrame :
     Filter a DataFrame by province's name
     """
     new_dataDF = data
-    new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('cell_ids'))
+    new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('cell_ids'), how='right')
 
     new_dataDF = new_dataDF.dropna()
     filtered_data = new_dataDF[new_dataDF.Province == location]
@@ -35,7 +35,7 @@ def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
     Filter a DataFrame by municipality's name
     """
     new_dataDF = data
-    new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('Cells_id'))
+    new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('cell_ids'))
 
     new_dataDF = new_dataDF.dropna()
     filtered_data = new_dataDF[new_dataDF.Municipality == location]
@@ -173,18 +173,19 @@ def group_by(data: DataFrame, collections: list):
     groupedDF = data.groupby( by = collections )
     return groupedDF
 
-def charge_data(path = 'pfql_data/1/'):
+def charge_data(path = 'Data/1/'):
     """
     Charge all parquets on main folder and turn it on DataFrame
     """
     
-    data = spark.read\
-    .option("recursiveFileLookup", "true")\
-    .parquet('/Users/hanselblanco/Documents/School/3ro/2do_semestre/C/py_spark/PFQL_data')
-    
-    # data = spark.read.format("parquet")\
+    # data = spark.read\
     # .option("recursiveFileLookup", "true")\
-    # .load(path)
+    # .parquet('/Users/hanselblanco/Documents/School/3ro/2do_semestre/C/py_spark/PFQL_data')
+    
+    data = spark.read.format("parquet")\
+    .option("recursiveFileLookup", "true")\
+    .load(path)
+    
     data.show()
 
     data = preprocess_parquets(data)
@@ -206,7 +207,7 @@ def charge_data(path = 'pfql_data/1/'):
 
 
 
-PROVINCIES = ["Pinar del Río", "Artemisa", "La Habana", "Mayabeque", "Matanzas", "Villa Clara", "Cienfuegos", "Sancti Spíritus","Ciego de Ávila", "Camagüey",
+PROVINCES = ["Pinar del Río", "Artemisa", "La Habana", "Mayabeque", "Matanzas", "Villa Clara", "Cienfuegos", "Sancti Spíritus","Ciego de Ávila", "Camagüey",
  "Las Tunas", "Holguín", "Granma", "Santiago de Cuba", "Guantánamo"]
 
 MUNICIPALITIES = ["Pinar del Río.Consolación del Sur", "Pinar del Río.Guane", "Pinar del Río.La Palma", "Pinar del Río.Los Palacios", "Pinar del Río.Mantua", 
