@@ -1,7 +1,6 @@
 import pandas as pd
 import pyspark as spark
 import pyspark.sql.functions as F
-from tomlkit import string
 from datetime import datetime, timedelta
 from pyspark.sql.types import *
 
@@ -62,7 +61,7 @@ def id_regions_from_one_parquet(path, cellid_towid):
 
 ############################ DATE FILTER AUXILIAR ############################################
 
-def date_difference(start_date: string, end_date: string):
+def date_difference(start_date: str, end_date: str):
 
     date_list = []
     if start_date == "": 
@@ -82,7 +81,7 @@ def date_difference(start_date: string, end_date: string):
 
 ############################ TIME FILTER AUXILIAR ############################################
 
-def time_difference(start_time: string, end_time: string):
+def time_difference(start_time: str, end_time: str):
     
     if start_time == "": 
         date_list.append(end_time)

@@ -1,13 +1,16 @@
+import os
+from typing import List
+
 import pandas as pd
 import pyspark as spark
-import os
-from tokenize import String
-from typing import List, Tuple
 from pandas import DataFrame
-from pyspark.sql.types import *
 from pyspark.sql import SparkSession
+from pyspark.sql.types import *
+
+from api.auxiliar_filter_methods import (convert_to_seconds,
+                                         preprocess_parquets,
+                                         towers_location_dataframes)
 from api.classes import TimeInterval
-from api.auxiliar_filter_methods import towers_location_dataframes, convert_to_seconds, preprocess_parquets
 
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 
@@ -170,18 +173,38 @@ def group_by(data: DataFrame, collections: list):
     groupedDF = data.groupby( by = collections )
     return groupedDF
 
-def charge_data(path = 'Data/1/'):
+def charge_data(path = 'pfql_data/1/'):
     """
     Charge all parquets on main folder and turn it on DataFrame
     """
-    data = spark.read.format("parquet")\
+    
+    data = spark.read\
     .option("recursiveFileLookup", "true")\
-    .load(path)
+    .parquet('/Users/hanselblanco/Documents/School/3ro/2do_semestre/C/py_spark/PFQL_data')
+    
+    # data = spark.read.format("parquet")\
+    # .option("recursiveFileLookup", "true")\
+    # .load(path)
     data.show()
 
     data = preprocess_parquets(data)
     
     return data.toPandas()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 PROVINCIES = ["Pinar del Río", "Artemisa", "La Habana", "Mayabeque", "Matanzas", "Villa Clara", "Cienfuegos", "Sancti Spíritus","Ciego de Ávila", "Camagüey",
  "Las Tunas", "Holguín", "Granma", "Santiago de Cuba", "Guantánamo"]
