@@ -26,7 +26,8 @@ reserved = {
    'true' : 'BOOL',
    'false' : 'BOOL',
    'if' : 'IF',
-   'show' : 'SHOW'
+   'show' : 'SHOW',
+   'while' : 'WHILE'
 }
 
 # List of token names. 

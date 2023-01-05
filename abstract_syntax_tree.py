@@ -68,6 +68,21 @@ class IfStatement(Node):
             result=line.evaluate(child_context)
             if result and isinstance(line, IfStatement):
                 return result
+            
+class WhileStatement(Node):
+    def __init__(self, condition, body) -> None:
+        self.condition = condition
+        self.body = body
+    def evaluate(self, context: Context):
+        
+        child_context: Context = context.make_child()
+        while self.condition.evaluate(context):
+            for line in self.body:
+                if isinstance(line, ReturnStatement):
+                    return line.evaluate(child_context)
+                result=line.evaluate(child_context)
+                if result and isinstance(line, IfStatement):
+                    return result
     
 class BinaryComparer(Node):
     def __init__(self, left_expr, comparer, right_expr) -> None:

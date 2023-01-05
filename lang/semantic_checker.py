@@ -10,7 +10,7 @@ from abstract_syntax_tree import (AllRegisters, ArithmeticOp, BinaryComparer,
                                   ProvincesCollection, ReturnStatement, Show,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
-                                  VariableDeclaration)
+                                  VariableDeclaration, WhileStatement)
 from api.pfql_api import LOCATIONS
 from lang.context import Context
 from lang.type import FunctionInstance, Type
@@ -48,6 +48,19 @@ class SemanticChecker:
         
     @visitor.when(IfStatement)
     def visit(self, node: IfStatement):
+        self.visit(node.condition)
+        if node.condition.computed_type is not Type.get('bool'):
+            raise Exception(f"Given condition is not boolean.")
+        
+        child_context: Context = self.context.make_child()
+        child_semantic_checker = SemanticChecker(child_context)
+        for line in node.body:
+            child_semantic_checker.visit(line)
+        
+        node.computed_type = Type.get('void')
+        
+    @visitor.when(WhileStatement)
+    def visit(self, node: WhileStatement):
         self.visit(node.condition)
         if node.condition.computed_type is not Type.get('bool'):
             raise Exception(f"Given condition is not boolean.")
