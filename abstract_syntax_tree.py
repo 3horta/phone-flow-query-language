@@ -5,13 +5,14 @@ from calendar import monthrange
 from typing import List
 
 from api.pfql_api import *
-from api.classes import TimeInterval
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
 OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le, '+': operator.add, '-': operator.sub}
 
 TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
+
+ALL = charge_data()
 
 class Node(ABC):
     @abstractmethod
@@ -182,11 +183,10 @@ class FilterOp(Node):
         self.registers = registers
         self.predicates = predicates
     def evaluate(self, context: Context):
-        registers= self.registers.evaluate(context)
-        predicates=[]
+        registers = self.registers.evaluate(context)
+        predicates = []
         for pred in self.predicates:
             predicates.append(pred.evaluate(context))
-
         result = filter(registers, predicates)
         return result
     
@@ -218,22 +218,19 @@ class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        result = charge_data()
-        return result
+        return ALL
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        result = PROVINCIES
-        return result
-    
+        return PROVINCES
+        
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        result = MUNICIPALITIES
-        return result
+        return MUNICIPALITIES
 
 class Predicate(Node):
     pass
@@ -266,7 +263,7 @@ class TimePredicate(Predicate):
         # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
 
 class LocationPredicate(Predicate):
-    def __init__(self, location) -> None:
-        self.location = location
+    def __init__(self, location: str) -> None:
+        self.location = location.replace('"', '')
     def evaluate(self, context: Context):
         return self.location

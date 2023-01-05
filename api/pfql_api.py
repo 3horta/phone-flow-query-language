@@ -23,7 +23,8 @@ def filter_by_province(data: DataFrame, location : str) -> DataFrame :
     Filter a DataFrame by province's name
     """
     new_dataDF = data
-    new_dataDF = ID_REGION.set_index('Cells_id').join(new_dataDF.set_index('cell_ids'), how='right')
+    new_dataDF = new_dataDF.set_index('cell_ids').join(ID_REGION.set_index('Cells_id'))
+    #new_dataDF = new_dataDF.join(ID_REGION, ID_REGION.Cells_id == new_dataDF.cell_ids, how='leftsemi')
 
     new_dataDF = new_dataDF.dropna()
     filtered_data = new_dataDF[new_dataDF.Province == location]

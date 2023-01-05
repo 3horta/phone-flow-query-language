@@ -346,11 +346,6 @@ def p_filter(p):
     '''
     Subexpression : FILTER Subexpression BY LBRACE Predicate_list RBRACE
     '''
-    # p is a sequence that represents rule contents.
-    #
-    #  Subexpression : filter  Subexpression     by    Predicate_list
-    #      p[0]     :  p[1]       p[2]        p[3]      p[4]
-    
     p[0] = FilterOp(p[2], p[5])
     
 def p_function_call(p):

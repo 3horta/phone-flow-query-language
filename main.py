@@ -12,7 +12,7 @@ ast = parser.parse(
     # list(string) d = towers(rg);
     # # int number = count(a);
 
-    # # # filter ALL by {location("Matanzas")};
+    
     # d = users(ALL);
     
     # function int pepe(int a, int b) {
@@ -72,19 +72,20 @@ ast = parser.parse(
     #   a = a + 1;
     # };
     
-    int n = 6;
-    int a = 0;
-    int b = 1;
-    int result = 0;
-    while (n > 0) {
-        result = a + b;
-        a = b;
-        b = result;
-        n = n - 1;
-    };
-    show(a);
+    # int n = 6;
+    # int a = 0;
+    # int b = 1;
+    # int result = 0;
+    # while (n > 0) {
+    #     result = a + b;
+    #     a = b;
+    #     b = result;
+    #     n = n - 1;
+    # };
+    # show(a);
     
-    
+    registerset r = filter ALL by { location("La Habana") };
+    show(r);
     
     '''
     )
