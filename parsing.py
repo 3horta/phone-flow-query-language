@@ -14,6 +14,7 @@ from lexer import *
 #                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
 #                    | if ( Condition ) { Body }
+#                    #| while ( Condition ) { Body }
 #                    | show ( Assignable )
 #  
 #   Assignable       : Expression
