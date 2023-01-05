@@ -84,7 +84,8 @@ ast = parser.parse(
     # };
     # show(a);
     
-    registerset r = filter ALL by { location("La Habana") };
+    registerset r = filter ALL by { location("La Habana"), location("La Habana.Playa") };
+    # registerset fr = filter r by {location("La Habana.Playa")};
     show(r);
     
     '''
