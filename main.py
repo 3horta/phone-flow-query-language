@@ -41,14 +41,11 @@ ast = parser.parse(
     # list(string) h = MUNICIPALITIES;
     # group ALL by {k};
 
-    function int pepito() {
-        int a = 1;
-        int b = 2;
-        int c = a + b;
-        return c - 2;
+    function int sum(int a, int b) {
+        return a + b;
     };
     
-    show(pepito());
+    show(sum(1, 2));
     
     # int c = 1 + 2;
     # show(c);

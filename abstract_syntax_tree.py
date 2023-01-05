@@ -85,6 +85,10 @@ class FunctionCall(Node):
 
     def evaluate(self, context: Context):
         function: FunctionInstance = context.resolve(self.name)
+        for i in range(len(function.parameters)):
+            parameter = function.parameters[i]
+            item = self.args[i]
+            function.context.define(parameter[1], Instance(Type.get(parameter[0]), item.value))
         for line in function.body:
             if isinstance(line, ReturnStatement):
                 return line.evaluate(function.context)

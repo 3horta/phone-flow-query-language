@@ -74,10 +74,10 @@ from lexer import *
 #                    | filter Subexpression by { Predicate_list }
 #                    | id ( Arguments )
 #
-#   Arguments        : Expression ExtraArguments
+#   Arguments        : Assignable ExtraArguments
 #                    | epsilon
 #
-#   ExtraArguments   : , Expression ExtraArguments
+#   ExtraArguments   : , Assignable ExtraArguments
 #                    | epsilon
 #
 #   Collection_list  : Collection, Collection_list
@@ -348,7 +348,7 @@ def p_function_call(p):
     
 def p_arguments(p):
     '''
-    Arguments : Expression ExtraArguments
+    Arguments : Assignable ExtraArguments
               | empty
     '''
     if len(p) == 3:
@@ -358,7 +358,7 @@ def p_arguments(p):
         
 def p_extra_arguments(p):
     '''
-    ExtraArguments : COMMA Expression ExtraArguments
+    ExtraArguments : COMMA Assignable ExtraArguments
                    | empty
     '''
     if len(p) == 4:
