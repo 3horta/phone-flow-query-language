@@ -12,7 +12,7 @@ OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': opera
 
 TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
 
-ALL = charge_data()
+ALL = load_data()
 
 class Node(ABC):
     @abstractmethod
