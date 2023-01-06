@@ -1,6 +1,7 @@
 # csv data
 *.csv
 *.ipynb
+Data/
 
 .gitignore
 parser.out
