@@ -106,7 +106,7 @@ def convert_to_seconds(time: str) -> int:
 
     return time
 
-########################## OTHER AUXILIARS ###############################
+########################## PARQUET PROCESSING AUXILIARS ###############################
 
 def preprocess_parquets(data):
 

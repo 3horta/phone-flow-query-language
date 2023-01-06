@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 
 import pandas as pd
@@ -49,23 +50,16 @@ def filter_by_municipality(data: DataFrame, location : str) -> DataFrame:
 ######################################## Date-Time filter #################################
 
 
-def filter_by_date(time_interval: TimeInterval):
+def filter_by_date(data: DataFrame, time_interval: TimeInterval):
     """
-    Take just the data from the specified dates (Format ex: 2000-03-01)
+    Filter specific dates data  (Format ex: 2000-03-01)
     """
-    date_list = time_interval.interval
-    date_filteredDF = pd.DataFrame()
-    # It will filter all at Data folder
-    main_path = 'Data/1/'
-    parquets = []
-    folders = list(os.listdir(main_path))
-
-    for folder in folders:
-        if folder in date_list:
-            parquets = charge_data(main_path + folder)
-            date_filteredDF = pd.concat((date_filteredDF, parquets))
-        
-    return date_filteredDF
+    
+    dates_df = pd.DataFrame({'Date': time_interval.interval})
+    
+    filtered_data = data.merge(dates_df, left_on='Date', right_on='Date')
+    
+    return filtered_data
 
 def filter_by_time(data: DataFrame, start_time: str = "", end_time: str = ""):
     """
@@ -98,7 +92,7 @@ def filter(data: DataFrame, filters: list):
         
         if isinstance(fil, TimeInterval):
     
-            filteredDF = filter_by_date(fil)
+            filteredDF = filter_by_date(filteredDF, fil)
         
         if isinstance(fil, str):
             location = fil
@@ -177,7 +171,7 @@ def group_by(data: DataFrame, collections: list):
     groupedDF = data.groupby( by = collections )
     return groupedDF
 
-def charge_data(path = 'Data/1/'):
+def charge_parquets(path = 'Data/1/'):
     """
     Charge all parquets on main folder and turn it on DataFrame
     """
@@ -190,11 +184,26 @@ def charge_data(path = 'Data/1/'):
     .option("recursiveFileLookup", "true")\
     .load(path)
     
-    data.show()
+    # data.show()
 
     data = preprocess_parquets(data)
     
     return data.toPandas()
+
+def charge_data(path = 'Data/1/'):
+    folders = list(os.listdir(path))
+    df = pd.DataFrame()
+    
+    for folder in folders:
+        pattern = re.compile("\d{4}-\d\d?-\d\d?")
+        cond = pattern.fullmatch(folder)
+        if not cond:
+            continue
+        parquets_df = charge_parquets(path + folder)
+        parquets_df['Date'] = [folder] * parquets_df.shape[0]
+        df = pd.concat((df, parquets_df))
+    
+    return df
 
 
 
