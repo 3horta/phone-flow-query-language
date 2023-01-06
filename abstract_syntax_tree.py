@@ -109,7 +109,6 @@ class FunctionCall(Node):
             parameter = function.parameters[i]
             item = self.args[i].evaluate(context)
             child_context.define(parameter[1],Instance(Type.get(parameter[0]), item))
-            #function.context.define(parameter[1], Instance(Type.get(parameter[0]), item))
         for line in function.body:
             if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
@@ -187,16 +186,15 @@ class FilterOp(Node):
         predicates = []
         for pred in self.predicates:
             predicates.append(pred.evaluate(context))
-        result = filter(registers, predicates)
-        return result
+        return filter(registers, predicates)
+
     
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        result = get_users_columns(register)
-        return result
+        return get_users(register)
 
 
 class Towers(Node):
@@ -204,15 +202,14 @@ class Towers(Node):
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        result = get_towers_columns(register)
+        return get_towers_columns(register)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        result = count(register)
-        return result
+        return count(register)
     
 class AllRegisters(Node):
     def __init__(self) -> None:

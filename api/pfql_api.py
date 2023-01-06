@@ -101,7 +101,7 @@ def filter(data: DataFrame, filters: list):
                 index = location.index(".")
                 province = location[0:index]
                 municipality = location[index+1::]
-                #filteredDF = filter_by_province(filteredDF, province)
+                filteredDF = filter_by_province(filteredDF, province)
                 filteredDF = filter_by_municipality(filteredDF, municipality)
 
 
@@ -143,26 +143,23 @@ def get_towers_columns(data: DataFrame):
     """
     Get the Towers DataFrame column
     """
-    towerd_colsDF = data[['Cells_id']].drop_duplicates(keep=False).tolist()
+    towerd_colsDF = data['cell_ids'].drop_duplicates(keep="first").values.tolist()
 
     return towerd_colsDF
 
-def get_users_columns(data: DataFrame):
+def get_users(data: DataFrame):
     """
-    Get the users DataFrame column
+    Get users.
     """
-    users_colsDF = data[['Codes']].drop_duplicates(keep=False).tolist()
+    users_colsDF = data['code'].drop_duplicates(keep="first").values.tolist()
 
     return users_colsDF
 
 def count(data: DataFrame) -> int:
     """
-    Return de count of no-null rows in DataFrame
+    Return register rows count.
     """
-
-    data_count = data.count()[0]
-
-    return data_count
+    return data.shape[0]
 
 def group_by(data: DataFrame, collections: list):
     """

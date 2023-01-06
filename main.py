@@ -87,7 +87,9 @@ ast = parser.parse(
     # registerset r = filter ALL by { location("La Habana"), location("La Habana.Playa") };
     # registerset fr = filter r by {location("La Habana.Playa")};
     # registerset frd = filter r by {time(2022, 2023)};
-    show(ALL);
+    # show(count(ALL));
+    # show(users(ALL));
+    show(towers(filter ALL by {location("La Habana")}));
     
     '''
     )
