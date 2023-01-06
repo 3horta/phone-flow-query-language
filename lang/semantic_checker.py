@@ -33,10 +33,17 @@ class SemanticChecker:
     def visit(self, node: ArithmeticOp):
         self.visit(node.left)
         self.visit(node.right)
-        int_type = Type.get('int')
-        if node.left.computed_type is not int_type or node.right.computed_type is not int_type:
-            raise Exception("Arithmetic operation must have integer operands.")
-        node.computed_type = int_type
+        
+        valid_types_str = ['int', 'registerset', 'clusterset', 'list(string)', 'string']
+        valid_types = []
+        for item in valid_types_str:
+            valid_types.append(Type.get(item))
+        
+        if node.left.computed_type != node.right.computed_type:
+            raise Exception("Arithmetic operands must be the same type.")
+        if node.right.computed_type not in valid_types:
+            raise Exception("Invalid operands.")
+        node.computed_type = node.left.computed_type
             
     @visitor.when(Show)
     def visit(self, node: Show):

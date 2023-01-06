@@ -115,11 +115,14 @@ def filter(data: DataFrame, filters: list):
 
 ############################## Set Operations ###########################################
 
+def set_operations(df1, df2, operator):
+    return OPERATORS[operator](df1, df2)
+
 def union(df1, df2):
     """
-    Returns two DataFrame union.
+    Returns DataFrames union.
     """
-    unionDF = pd.concat((df1, df2))
+    unionDF = pd.concat([df1, df2], axis=0).drop_duplicates(keep="first")
     return unionDF
 
 def intersection(df1, df2):
@@ -131,7 +134,7 @@ def intersection(df1, df2):
 
 def difference(df1, df2):
     """
-    Returns two DataFrame difference. (parameters order)
+    Returns two DataFrame difference. (parameters ordered)
     """
     differenceDF = pd.concat([df1, df2]).drop_duplicates(keep=False)
     return differenceDF
@@ -273,3 +276,5 @@ MUNICIPALITIES = ["Pinar del Río.Consolación del Sur", "Pinar del Río.Guane",
 "Guantánamo.Baracoa", "Guantánamo.Caimanera", "Guantánamo.El Salvador", "Guantánamo.Guantánamo", "Guantánamo.Imías", "Guantánamo.Maisí", 
 "Guantánamo.Manuel Tames","Guantánamo.Niceto Pérez", "Guantánamo.San Antonio del Sur", "Guantánamo.Yateras", "Guantánamo.Isla de la Juventud"
 ]
+
+OPERATORS = {'+': union, '-': difference}

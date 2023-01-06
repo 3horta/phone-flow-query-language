@@ -39,6 +39,8 @@ class ArithmeticOp(Node):
     def evaluate(self, context: Context):
         l = self.left.evaluate(context)
         r = self.right.evaluate(context)
+        if isinstance(l, DataFrame):
+            return set_operations(l, r, self.op)
         return OPERATORS[self.op](l, r)
         
             

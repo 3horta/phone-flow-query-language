@@ -50,21 +50,17 @@ ast = parser.parse(
     # int c = 1 + 2;
     # show(c);
     
-    # function int Fibonacci(int n) {
-    #     if (n == 1) {
-    #         return 0;
-    #     };
-    #     if (n == 2) {
-    #         return 1;
-    #     };
-    #     int nmenos1 = n - 1;
-    #     int nmenos2 = n - 2;
-    #     int a = Fibonacci(nmenos1);
-    #     int b = Fibonacci(nmenos2);
-    #     return a + b;
-    # };
+    function int Fibonacci(int n) {
+        if (n == 1) {
+            return 0;
+        };
+        if (n == 2) {
+            return 1;
+        };
+        return Fibonacci(n - 1) + Fibonacci(n - 2);
+    };
     
-    # show(Fibonacci(6));
+    show(Fibonacci(6));
     
     # int a = 0;
     # while (a < 10) {
@@ -72,25 +68,27 @@ ast = parser.parse(
     #   a = a + 1;
     # };
     
-    # int n = 6;
-    # int a = 0;
-    # int b = 1;
-    # int result = 0;
-    # while (n > 0) {
-    #     result = a + b;
-    #     a = b;
-    #     b = result;
-    #     n = n - 1;
-    # };
-    # show(a);
+    int n = 6;
+    int a = 0;
+    int b = 1;
+    int result = 0;
+    while (n > 1) {
+        result = a + b;
+        a = b;
+        b = result;
+        n = n - 1;
+    };
+    show(a);
     
     # registerset r = filter ALL by { location("La Habana"), location("La Habana.Playa") };
     # registerset fr = filter r by {location("La Habana.Playa")};
     # registerset frd = filter r by {time(2022, 2023)};
     # show(count(ALL));
     # show(users(ALL));
-    show(group ALL by {PROVINCES, MUNICIPALITIES});
-    show(group ALL by {PROVINCES, PROVINCES});
+    # show(group ALL by {PROVINCES, MUNICIPALITIES});
+    # show(group ALL by {PROVINCES, PROVINCES});
+    # show(filter ALL by { time(1-1-2021, 31-12-2021) } + filter ALL by { time(1-1-2022, 31-12-2022) } );
+    # show(ALL -  filter by { time(1-1-2022, 31-12-2022) } );
     '''
     )
 

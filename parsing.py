@@ -19,26 +19,21 @@ from lexer import *
 #                    | while ( Condition ) { Body }
 #                    | show ( Assignable )
 #  
-#   Assignable       : Expression
+#   Assignable       : ArithmeticOp
 #                    | Literal
-#                    | ArithmeticOp
 #
 #   ArithmeticOp     : ArithmeticOp + NumLit
 #                    | ArithmeticOp - NumLit
 #                    | NumLit
-#                    | ArithmeticOp + id
-#                    | ArithmeticOp - id
-#                    | id + id
-#                    | id - id
-#                    | id + NumLit
-#                    | id - NumLit
+#                    | ArithmeticOp + Expression
+#                    | ArithmeticOp - Expression
+#                    | Expression
 #
 #   NumLit           : ( ArithmeticOp )
 #                    | num
 #
 #   Literal          : bool
 #                    | CollectionLit
-#
 #
 #   Condition        : Assignable comparer Assignable
 #                    | bool
@@ -156,9 +151,8 @@ def p_if(p):
 
 def p_asignable(p):
     '''
-    Assignable : Expression
+    Assignable : ArithmeticOp
                | Literal
-               | ArithmeticOp
     '''
     p[0] = p[1]
     
@@ -167,32 +161,14 @@ def p_arithmetic_op(p):
     ArithmeticOp : ArithmeticOp PLUS NumLit
                  | ArithmeticOp MINUS NumLit
                  | NumLit
+                 | ArithmeticOp PLUS Expression
+                 | ArithmeticOp MINUS Expression
+                 | Expression
     '''
     if len(p) == 4:
         p[0] = ArithmeticOp(p[1], p[2], p[3])
     else:
         p[0] = p[1]
-        
-def p_arithmetic_op_id(p):
-    '''
-    ArithmeticOp : ArithmeticOp PLUS ID
-                 | ArithmeticOp MINUS ID
-    '''
-    p[0] = ArithmeticOp(p[1], p[2], VariableCall(p[3]))
-    
-def p_arithmetic_op_id_id(p):
-    '''
-    ArithmeticOp : ID PLUS ID
-                 | ID MINUS ID
-    '''
-    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], VariableCall(p[3]))
-    
-def p_arithmetic_op_id_numlit(p):
-    '''
-    ArithmeticOp : ID PLUS NumLit
-                 | ID MINUS NumLit
-    '''
-    p[0] = ArithmeticOp(VariableCall(p[1]), p[2], p[3])
 
 def p_numlit(p):
     '''
