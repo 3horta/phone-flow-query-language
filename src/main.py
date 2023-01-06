@@ -5,7 +5,7 @@ from parsing import parser
 print("Insert file name ( with extension '.pfql' ) to run: ")
 file_name = input()
 
-with open(file_name + '.pfql', 'r') as file:
+with open('tester/' + file_name + '.pfql', 'r') as file:
     data = file.read()
 
 ast = parser.parse(data)

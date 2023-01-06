@@ -190,7 +190,7 @@ def group_by(data: DataFrame, collections: list):
 def merge_locations(data: DataFrame):
     return data.merge(ID_REGION, left_on='cell_ids', right_on= 'Cells_id').dropna().drop(columns = ['Cells_id'])
 
-def load_parquets(path = 'Data/1/'):
+def load_parquets(path):
     """
     Load all parquets on main folder and turn it on DataFrame
     """
@@ -209,7 +209,7 @@ def load_parquets(path = 'Data/1/'):
     
     return data.toPandas()
 
-def load_data(path = 'Data/1/'):
+def load_data(path = 'data/registers/'):
     folders = list(os.listdir(path))
     df = pd.DataFrame()
     
