@@ -4,13 +4,15 @@ from abc import ABC, abstractmethod
 from calendar import monthrange
 from typing import List
 
-from api.pfql_api import TimeInterval
+from api.pfql_api import *
 from lang.context import Context
 from lang.type import FunctionInstance, Instance, Type
 
 OPERATORS = {'>' : operator.gt, '<': operator.lt, '==': operator.eq, '>=': operator.ge, '<=': operator.le, '+': operator.add, '-': operator.sub}
 
 TOKEN_TO_TYPE = {'BOOL': 'bool', 'NUM': 'int'}
+
+ALL = charge_data()
 
 class Node(ABC):
     @abstractmethod
@@ -68,6 +70,21 @@ class IfStatement(Node):
             result=line.evaluate(child_context)
             if result and isinstance(line, IfStatement):
                 return result
+            
+class WhileStatement(Node):
+    def __init__(self, condition, body) -> None:
+        self.condition = condition
+        self.body = body
+    def evaluate(self, context: Context):
+        
+        child_context: Context = context.make_child()
+        while self.condition.evaluate(context):
+            for line in self.body:
+                if isinstance(line, ReturnStatement):
+                    return line.evaluate(child_context)
+                result=line.evaluate(child_context)
+                if result and isinstance(line, IfStatement):
+                    return result
     
 class BinaryComparer(Node):
     def __init__(self, left_expr, comparer, right_expr) -> None:
@@ -157,8 +174,8 @@ class GroupOp(Node):
         for c in self.collection:
             collection.append(c.evaluate(context))
 
-        # result = Metodo_group_de_API(registers:DataFrame, collection: List)
-        # return result
+        result = group_by(registers, collection)
+        return result
 
         
 class FilterOp(Node):
@@ -166,20 +183,20 @@ class FilterOp(Node):
         self.registers = registers
         self.predicates = predicates
     def evaluate(self, context: Context):
-        registers= self.registers.evaluate(context)
-        predicates=[]
+        registers = self.registers.evaluate(context)
+        predicates = []
         for pred in self.predicates:
             predicates.append(pred.evaluate(context))
-
-        # result = Metodo_filter_de_API(registers:DataFrame, predicates: List)
-        # return result
+        result = filter(registers, predicates)
+        return result
     
 class Users(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_get_users_de_API(register:DataFrame)
+        result = get_users_columns(register)
+        return result
 
 
 class Towers(Node):
@@ -187,35 +204,33 @@ class Towers(Node):
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_get_towers_de_API(register:DataFrame)
+        result = get_towers_columns(register)
     
 class Count(Node):
     def __init__(self, registers) -> None:
         self.registers = registers
     def evaluate(self, context: Context):
         register = self.registers.evaluate(context)
-        # result = Metodo_count_de_API(register:DataFrame)
+        result = count(register)
+        return result
     
 class AllRegisters(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_ALL_de_API
-        pass
+        return ALL
     
 class ProvincesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_Provinces_de_API   Nota: Devuelve Lista de string Ex: ["La Habana", "Cienfuegos",...]
-        pass
-    
+        return PROVINCES
+        
 class MunicipalitiesCollection(Node):
     def __init__(self) -> None:
         pass
     def evaluate(self, context: Context):
-        # result = get_Municipalities_de_API   Nota: Devuelve Lista de string Ex: ["La Habana.Playa", "Matanzas.Cardenas",...]
-        pass
+        return MUNICIPALITIES
 
 class Predicate(Node):
     pass
@@ -233,6 +248,7 @@ class TimePredicate(Predicate):
         if len(splitted_date) == 2:
             return datetime.date(splitted_date[1], splitted_date[0], 1)
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
+    
     def build_end_date(self, date: str):
         splitted_date_str = date.split('-')
         splitted_date = [int(item) for item in splitted_date_str]
@@ -243,12 +259,10 @@ class TimePredicate(Predicate):
         return datetime.date(splitted_date[2], splitted_date[1], splitted_date[0])
 
     def evaluate(self, context: Context):
-        pass
-        # return TimeInterval(self.start_date, self.end_date) 
-        # Esta es una estructura que debe estar en la API. Lo q se hace aqui es construirla
+        return TimeInterval(self.start_date, self.end_date) 
 
 class LocationPredicate(Predicate):
-    def __init__(self, location) -> None:
-        self.location = location
+    def __init__(self, location: str) -> None:
+        self.location = location.replace('"', '')
     def evaluate(self, context: Context):
         return self.location

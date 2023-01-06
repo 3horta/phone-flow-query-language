@@ -1,5 +1,6 @@
 from datetime import date
 from typing import List
+from api.pfql_api import MUNICIPALITIES, PROVINCES
 
 import lang.visitor as visitor
 from abstract_syntax_tree import (AllRegisters, ArithmeticOp, BinaryComparer,
@@ -10,8 +11,7 @@ from abstract_syntax_tree import (AllRegisters, ArithmeticOp, BinaryComparer,
                                   ProvincesCollection, ReturnStatement, Show,
                                   TimePredicate, Towers, Users,
                                   VariableAssignment, VariableCall,
-                                  VariableDeclaration)
-from api.pfql_api import LOCATIONS
+                                  VariableDeclaration, WhileStatement)
 from lang.context import Context
 from lang.type import FunctionInstance, Type
 
@@ -48,6 +48,19 @@ class SemanticChecker:
         
     @visitor.when(IfStatement)
     def visit(self, node: IfStatement):
+        self.visit(node.condition)
+        if node.condition.computed_type is not Type.get('bool'):
+            raise Exception(f"Given condition is not boolean.")
+        
+        child_context: Context = self.context.make_child()
+        child_semantic_checker = SemanticChecker(child_context)
+        for line in node.body:
+            child_semantic_checker.visit(line)
+        
+        node.computed_type = Type.get('void')
+        
+    @visitor.when(WhileStatement)
+    def visit(self, node: WhileStatement):
         self.visit(node.condition)
         if node.condition.computed_type is not Type.get('bool'):
             raise Exception(f"Given condition is not boolean.")
@@ -224,8 +237,9 @@ class SemanticChecker:
         if not isinstance(node.location, str):
             raise Exception(f"{node.location} is not a valid location.")
         province_municipality: List[str] = node.location.split('.')
-        if province_municipality[0] in LOCATIONS.keys():
-            if len(province_municipality) == 1 or province_municipality[1] in LOCATIONS[province_municipality[0]]:
+        
+        if province_municipality[0] in PROVINCES:
+            if len(province_municipality) == 1 or node.location in MUNICIPALITIES:
                 node.computed_type = Type.get('string')
                 return
         raise Exception(f"{node.location} is not a valid location.")

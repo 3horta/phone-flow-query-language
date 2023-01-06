@@ -26,7 +26,8 @@ reserved = {
    'true' : 'BOOL',
    'false' : 'BOOL',
    'if' : 'IF',
-   'show' : 'SHOW'
+   'show' : 'SHOW',
+   'while' : 'WHILE'
 }
 
 # List of token names. 
@@ -60,7 +61,7 @@ tokens = (
 
 
 # Regular expression rules for simple tokens
-t_STRING = r'"\w*"'
+t_STRING = r'"(\w|\s)*(.)?(\w|\s)*"'
 #t_DATE = r'((\d\d?-)?\d\d?-)?\d{4}'
 
 t_PLUS = r'\+'

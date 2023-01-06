@@ -16,7 +16,7 @@ from lexer import *
 #                    | function ReturnType id (Parameters) { Body }
 #                    | Expression
 #                    | if ( Condition ) { Body }
-#                    #| while ( Condition ) { Body }
+#                    | while ( Condition ) { Body }
 #                    | show ( Assignable )
 #  
 #   Assignable       : Expression
@@ -135,6 +135,24 @@ def p_variable(p):
         p[0] = VariableAssignment(p[1], p[3])
     elif len(p) == 2:
         p[0] = p[1]
+        
+def p_function(p):
+    '''
+    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE Body RBRACE
+    '''
+    if len(p) == 10:
+        p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
+
+def p_if(p):
+    '''
+    Statement : IF LPAREN Condition RPAREN LBRACE Body RBRACE
+              | WHILE LPAREN Condition RPAREN LBRACE Body RBRACE
+    '''
+    if p[1] == 'if':
+        p[0] = IfStatement(p[3], p[6])
+    else:
+        p[0] = WhileStatement(p[3], p[6])
+        
 
 def p_asignable(p):
     '''
@@ -198,19 +216,6 @@ def p_literal_collection(p):
     '''
     p[0] = p[1]
 
-def p_function(p):
-    '''
-    Statement : FUNCTION ReturnType ID LPAREN Parameters RPAREN LBRACE Body RBRACE
-    '''
-    if len(p) == 10:
-        p[0] = FunctionDeclaration(p[2], p[3], p[5], p[8])
-
-def p_if(p):
-    '''
-    Statement : IF LPAREN Condition RPAREN LBRACE Body RBRACE
-    '''
-    p[0] = IfStatement(p[3], p[6])
-        
 def p_condition(p):
     '''
     Condition : Assignable GEQUAL Assignable
@@ -341,11 +346,6 @@ def p_filter(p):
     '''
     Subexpression : FILTER Subexpression BY LBRACE Predicate_list RBRACE
     '''
-    # p is a sequence that represents rule contents.
-    #
-    #  Subexpression : filter  Subexpression     by    Predicate_list
-    #      p[0]     :  p[1]       p[2]        p[3]      p[4]
-    
     p[0] = FilterOp(p[2], p[5])
     
 def p_function_call(p):
