@@ -1,6 +1,7 @@
+from lang.context import Context
 from lang.semantic_checker import SemanticChecker
 from parsing import parser
-from lang.context import Context
+
 # Parse an expression
 ast = parser.parse(
     '''
