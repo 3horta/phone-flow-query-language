@@ -3,7 +3,6 @@ import re
 from typing import List
 
 import pandas as pd
-import pyspark as spark
 from pandas import DataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
@@ -16,6 +15,8 @@ from api.classes import TimeInterval
 spark = SparkSession.builder.appName('pfql').getOrCreate() 
 
 ID_REGION = towers_location_dataframes()
+
+
 
 ######################################## Region filter ######################################
 
@@ -78,7 +79,6 @@ def get_collection(collection_name : str) -> List[str]: #need to define how to l
     Returns collection.
     """
     pass
-    #clusterset b = group a by {PROVINCES};
 
 
 def filter(data: DataFrame, filters: list):
@@ -101,7 +101,7 @@ def filter(data: DataFrame, filters: list):
                 index = location.index(".")
                 province = location[0:index]
                 municipality = location[index+1::]
-                #filteredDF = filter_by_province(filteredDF, province)
+                filteredDF = filter_by_province(filteredDF, province)
                 filteredDF = filter_by_municipality(filteredDF, municipality)
 
 
@@ -143,37 +143,53 @@ def get_towers_columns(data: DataFrame):
     """
     Get the Towers DataFrame column
     """
-    towerd_colsDF = data[['Cells_id']].drop_duplicates(keep=False).tolist()
+    towerd_colsDF = data['cell_ids'].drop_duplicates(keep="first").values.tolist()
 
     return towerd_colsDF
 
-def get_users_columns(data: DataFrame):
+def get_users(data: DataFrame):
     """
-    Get the users DataFrame column
+    Get users.
     """
-    users_colsDF = data[['Codes']].drop_duplicates(keep=False).tolist()
+    users_colsDF = data['code'].drop_duplicates(keep="first").values.tolist()
 
     return users_colsDF
 
 def count(data: DataFrame) -> int:
     """
-    Return de count of no-null rows in DataFrame
+    Return register rows count.
     """
-
-    data_count = data.count()[0]
-
-    return data_count
+    return data.shape[0]
 
 def group_by(data: DataFrame, collections: list):
     """
-    Return a DataFrame gruoped by specified collections
+    Return a DataFrame grouped by specific collections.
     """
-    groupedDF = data.groupby( by = collections )
-    return groupedDF
+    locations_in_df = merge_locations(data)
+    
+    str_collections = []
+    for collection in collections:
+        if collection == PROVINCES:
+            str_collections.append('Province')
+        elif collection == MUNICIPALITIES:
+            str_collections.append('Municipality')
+    
+    
+    str_collections = [*set(str_collections)]
+    str_collections.reverse()
+    
+    gb = locations_in_df
+    for item in str_collections:
+        gb = gb.groupby(item, group_keys=True).apply(lambda x: x)
+    
+    return gb
 
-def charge_parquets(path = 'Data/1/'):
+def merge_locations(data: DataFrame):
+    return data.merge(ID_REGION, left_on='cell_ids', right_on= 'Cells_id').dropna().drop(columns = ['Cells_id'])
+
+def load_parquets(path = 'Data/1/'):
     """
-    Charge all parquets on main folder and turn it on DataFrame
+    Load all parquets on main folder and turn it on DataFrame
     """
     
     # data = spark.read\
@@ -190,7 +206,7 @@ def charge_parquets(path = 'Data/1/'):
     
     return data.toPandas()
 
-def charge_data(path = 'Data/1/'):
+def load_data(path = 'Data/1/'):
     folders = list(os.listdir(path))
     df = pd.DataFrame()
     
@@ -199,7 +215,7 @@ def charge_data(path = 'Data/1/'):
         cond = pattern.fullmatch(folder)
         if not cond:
             continue
-        parquets_df = charge_parquets(path + folder)
+        parquets_df = load_parquets(path + folder)
         parquets_df['Date'] = [folder] * parquets_df.shape[0]
         df = pd.concat((df, parquets_df))
     
