@@ -1,0 +1,16 @@
+
+function int Fibonacci(int m) {
+    int n = m;
+    int a = 0;
+    int b = 1;
+    int result = 0;
+    while (n > 1) {
+        result = a + b;
+        a = b;
+        b = result;
+        n = n - 1;
+    };
+    return a;
+};
+
+show(Fibonacci(6));

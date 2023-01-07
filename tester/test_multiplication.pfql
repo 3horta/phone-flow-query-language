@@ -1,0 +1,10 @@
+function void print_multiplication(int a, int b) {
+    int value = 0;
+    while (b > 0) {
+        value = value + a;
+        b = b - 1;
+    };
+    show(value);
+};
+
+print_multiplication(4, 5);

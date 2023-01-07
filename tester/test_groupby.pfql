@@ -1,0 +1,11 @@
+
+clusterset a = group ALL by { PROVINCES };
+clusterset b = group ALL by { MUNICIPALITIES };
+
+show(a);
+
+show(b);
+
+clusterset ab = group ALL by { PROVINCES, MUNICIPALITIES };
+
+show(ab);

@@ -1,0 +1,42 @@
+
+####################### example functions ##############################################################
+
+function registerset filtering_by_time_1st_2021(registerset A) 
+{
+    return filter A by { time(1-2021, 6-2021) };      # time(1-2021, 6-2021) == time(1-1-2021, 30-6-2021)
+};
+
+function registerset filtering_by_location_cerro(registerset A) 
+{
+    return filter A by { location("La Habana.Cerro") };
+};
+
+################################################################################################
+
+# Comments with #, better for testing :-)
+
+registerset data_2021 = filter ALL by { time(2021, 2021) }; # time(2021, 2021) == time(1-1-2021, 31-12-2021)
+
+
+registerset data_1st_semester_2021 = filtering_by_time_1st_2021(data_2021);
+
+
+show(data_1st_semester_2021);
+
+registerset data_no_2nd_semester_2021 = ALL - filter ALL by { time(2021, 30-6-2021) };
+
+show(data_no_2nd_semester_2021);
+
+
+
+registerset playa_1st_sem_2021 = filter data_1st_semester_2021 by { location("La Habana.Playa") };
+
+show(count(playa_1st_sem_2021));
+
+show(towers(playa_1st_sem_2021));
+
+registerset playa_cerro_1st_2021 = playa_1st_sem_2021 + filtering_by_location_cerro(data_1st_semester_2021);
+
+list(string) u_playa_cerro_1st_2021 = users(playa_cerro_1st_2021); # get users from 2021 1st semester from Playa and Cerro
+
+show(u_playa_cerro_1st_2021);

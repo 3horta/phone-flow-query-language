@@ -179,7 +179,6 @@ def group_by(data: DataFrame, collections: list):
     
     
     str_collections = [*set(str_collections)]
-    str_collections.reverse()
     
     gb = locations_in_df
     for item in str_collections:
