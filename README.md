@@ -1,10 +1,10 @@
 # PFQL: phone-flow-query-language
 ## Lenguaje de dominio específico para el trabajo con datos de telefonía móvil
 
-phone-flow-query-language(PFQL) es un lenguaje de dominio específico que se propone como proyecto final de la asignatura Compilación. Tiene como objetivo facilitar el trabajo con datos de telefonía movil que se desarrolla en el Centro de Sistemas Complejos, ubicado en la Facultad de Física de la Universidad de La Habana. Actualmete el trabajo con estos datos se realiza utilizando Spark que brinda numerosas facilidades por su expresividad y eficiencia. Sin embargo, se busca crear un DSL para poder realizar operaciones específicas del dominio de forma más simple y ampliando la posibilidad de que personas sin muchos conocimientos sobre programación y trabajo con datos puedan acceder a la información que necesitan. 
+phone-flow-query-language(PFQL) es un lenguaje de dominio específico que se propone como proyecto final de la asignatura Compilación. Tiene como objetivo facilitar el trabajo con datos de telefonía móvil que se desarrolla en el Centro de Sistemas Complejos, ubicado en la Facultad de Física de la Universidad de La Habana. Actualmente el trabajo con estos datos se realiza utilizando Spark que brinda numerosas facilidades por su expresividad y eficiencia. Sin embargo, se busca crear un DSL para poder realizar operaciones específicas del dominio de forma más simple y ampliando la posibilidad de que personas sin muchos conocimientos sobre programación y trabajo con datos puedan acceder a la información que necesitan.
 
-## Sintaxis del Lenguaje
-PFQL es un lenguaje no orientado a objetos, con una sintaxis con características funcionales y con tipado estático.
+## Sintaxis del lenguaje
+PFQL es un lenguaje no orientado a objetos, de sintaxis con características funcionales y tipado estático.
 
 ### Palabras reservadas:
 - time
@@ -205,12 +205,12 @@ La gramática del lenguaje es una gramatica LALR.
 ### Lexer:
 
 Para el análisis léxico se utilizó el módulo ``lex`` de la biblioteca ``ply`` de Python. 
-Se definieron las palabras reservadas del lenguaje y las expresiones regulares para reconocer los tokens del lenguaje. Para el trabajo con expresiones regulares se utiliza la biblioteca ``re``. 
-Los token son instancias de ``LexToken`` y tienen los atributos ``type``, ``value``, ``lineno`` y ``lexpos``. Computar estos dos últimos atributos resulta útil para indicar al programador en caso de haber error léxico en que línea y posición del código se encentra el token inválido. 
+Se definieron las palabras reservadas del lenguaje y las expresiones regulares para reconocer los tokens. Para el trabajo con expresiones regulares se utiliza la biblioteca ``re``. 
+Los token son instancias de ``LexToken`` y tienen los atributos ``type``, ``value``, ``lineno`` y ``lexpos``. Computar estos dos últimos atributos resulta útil para indicar al programador en caso de haber error léxico en qué línea y posición del código se encuentra el token inválido. 
 Se utilizó el caracter ``#`` para indicar el comentario y el caracter ``;`` para indicar el fin de una instrucción.
 
 ### Parser:
-Para el proceso de parsing se utilizó el módulo ``yacc`` de la biblioteca ``ply`` de Python y se definieron las reglas semánticas para indicar el comportamiento semántico del lenguaje y la construcción del árbol de sintaxis abtracta (AST). Yacc usa un parser LALR. Cada regla de la grámatica se especifica como una función de ``Python`` donde el docstring de la función indica la regla gramática que corresponde. En el archivo ``parsing.out`` se muestra como queda la gramática y el autómata LALR correspondiente. 
+Para el proceso de parsing se utilizó el módulo ``yacc`` de la biblioteca ``ply`` de Python y se definieron las reglas semánticas para indicar el comportamiento semántico del lenguaje y la construcción del árbol de sintaxis abtracta (AST). Yacc usa un parser LALR. Cada regla de la grámatica se especifica como una función de ``Python`` donde el docstring de la función indica la regla gramatical que corresponde. En el archivo ``parsing.out`` se muestra cómo queda la gramática y el autómata LALR correspondiente. 
 
 A continuación se muestra un ejemplo de la definición de una regla de la gramática y la regla semántica correspondiente:
 
@@ -226,11 +226,11 @@ Para la construcción del AST se creó una clase abstracta ``Node`` de la cual h
 
 Cada nodo tiene un atributo ``computed_type`` que se computa y utiliza en la fase de verificación semántica. 
 
-Cada nodo tiene un método ``evaluate`` que se utiliza para computar el valor del nodo. El método ``evaluate`` recibe una instancia de la clase ``Context`` de la que obtiene la información del programa de pfql que necesite y añade la información que corresponda. 
+Cada nodo tiene un método ``evaluate`` que se utiliza para computar el valor del nodo. El método ``evaluate`` recibe una instancia de la clase ``Context`` de la que obtiene la información del programa de PFQL que necesite y añade la información que corresponda. 
 
 ### Verificación semántica:
 
-Para la fase de verificación semántica se creó la clase ``SemanticChecker`` que tiene una instancia del contexto. Se empleó el patrón visitor para visistar los nodos del AST y realizar el chequeo de tipos correspondiente, así como obtener el tipo de cada nodo. Todos los errores de tipo del programa son detectados en esta fase, previa a la ejecución. 
+Para la fase de verificación semántica se creó la clase ``SemanticChecker`` que tiene una instancia de la clase `Context`. Se empleó el patrón visitor para visistar los nodos del AST y realizar el chequeo de tipos correspondiente, así como obtener el tipo de cada nodo. Todos los errores de tipo del programa son detectados en esta fase, previa a la ejecución. 
 
 A continuación algunas reglas semánticas del lenguaje:
 - En la declaración de una función el tipo debe coincidir con el tipo de la expresión asociada. 
