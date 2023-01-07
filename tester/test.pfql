@@ -70,16 +70,20 @@ function void test_sc ()
     if(true) 
     {
         int a= 2;
-
         while(a>0)
-        {   a= 1 ;
-            while (a > 0){
-                a=0;
-              return true;
-            };
-            
+        {   
+            a = 1;
+            show(a);
+            return;
+
         };
+        show(a);
     };
 };
-
 test_sc();
+
+# int i = 0;
+# while (true) {
+#     show(i);
+#     return;
+# };

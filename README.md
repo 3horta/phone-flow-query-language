@@ -152,6 +152,7 @@ La gramática del lenguaje es una gramatica LALR.
                     | ReturnStatement
 
    ReturnStatement  : return Assignable;
+                    | return;
 
    Parameters       : Type id ExtraParameters
                     | epsilon

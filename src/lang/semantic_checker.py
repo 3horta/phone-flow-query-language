@@ -152,7 +152,7 @@ class SemanticChecker:
         for sub_program in node.body:
             child_semantic_checker.visit(sub_program)
             if_ret= isinstance(sub_program, IfStatement) and sub_program.computed_type is not Type.get('void')
-            while_ret= isinstance(sub_program, WhileStatement) and sub_program.computed_type
+            while_ret= isinstance(sub_program, WhileStatement) and sub_program.computed_type is not Type.get('void')
             ret= isinstance(sub_program, ReturnStatement) or if_ret or while_ret
             if ret:
                 if not if_ret and not while_ret:
@@ -168,8 +168,10 @@ class SemanticChecker:
     
     @visitor.when(ReturnStatement)
     def visit(self, node: ReturnStatement):
-        self.visit(node.expression)
-        node.computed_type = node.expression.computed_type
+        if node.expression:
+            self.visit(node.expression)
+            node.computed_type = node.expression.computed_type
+        else: node.computed_type = Type.get('void')
         
 
     @visitor.when(VariableAssignment)

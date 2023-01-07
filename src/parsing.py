@@ -46,6 +46,7 @@ from lexer import *
 #                    | ReturnStatement
 #
 #   ReturnStatement  : return Assignable;
+#                    | return;
 #
 #   Parameters       : Type id ExtraParameters
 #                    | epsilon
@@ -232,8 +233,12 @@ def p_body_no_ret(p):
 def p_return_statement(p):
     '''
     ReturnStatement : RETURN Assignable END
+                    | RETURN END
     '''
-    p[0] = ReturnStatement(p[2])
+    if len(p) == 4:
+        p[0] = ReturnStatement(p[2])
+    else:
+        p[0] = ReturnStatement()
         
 def p_parameters(p):
     '''

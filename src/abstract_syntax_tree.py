@@ -70,7 +70,8 @@ class IfStatement(Node):
             if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
             result=line.evaluate(child_context)
-            if result and isinstance(line, IfStatement):
+            ret_cond = not isinstance(result,type(None)) and (isinstance(line, IfStatement) or isinstance(line, WhileStatement))
+            if ret_cond:
                 return result
             
 class WhileStatement(Node):
@@ -85,7 +86,8 @@ class WhileStatement(Node):
                 if isinstance(line, ReturnStatement):
                     return line.evaluate(child_context)
                 result=line.evaluate(child_context)
-                if result and isinstance(line, IfStatement):
+                ret_cond = not isinstance(result,type(None)) and (isinstance(line, IfStatement) or isinstance(line, WhileStatement))
+                if ret_cond:
                     return result
     
 class BinaryComparer(Node):
@@ -115,7 +117,7 @@ class FunctionCall(Node):
             if isinstance(line, ReturnStatement):
                 return line.evaluate(child_context)
             result=line.evaluate(child_context)
-            ret_cond = not isinstance(result,type(None)) and isinstance(line, IfStatement)
+            ret_cond = not isinstance(result,type(None)) and (isinstance(line, IfStatement) or isinstance(line, WhileStatement))
             if ret_cond:
                 return result
             
@@ -134,10 +136,12 @@ class FunctionDeclaration(Node):
         context.define(self.name, FunctionInstance(child_context, self.type, self.parameters, self.body))
         
 class ReturnStatement(Node):
-    def __init__(self, expression) -> None:
+    def __init__(self, expression = None) -> None:
         self.expression = expression
     def evaluate(self, context: Context):
-        return self.expression.evaluate(context)
+        if self.expression:
+            return self.expression.evaluate(context)
+        return ''
 
 
 class VariableCall(Node):
