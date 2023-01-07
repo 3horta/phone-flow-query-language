@@ -61,10 +61,21 @@ class SemanticChecker:
         
         child_context: Context = self.context.make_child()
         child_semantic_checker = SemanticChecker(child_context)
+        
+        node.computed_type= Type.get('void')
+        
         for line in node.body:
             child_semantic_checker.visit(line)
+            cond= isinstance(line,ReturnStatement) or isinstance(line,IfStatement) or isinstance(line,WhileStatement)
+            if cond:
+                if node.computed_type is not Type.get('void') and line.computed_type is not Type.get('void') :
+                    if node.computed_type is not line.computed_type:
+                        raise Exception('Return type not valid')
+                elif line.computed_type is not Type.get('void'):
+                    node.computed_type= line.computed_type
+                if isinstance(line,ReturnStatement): return
+    
         
-        node.computed_type = Type.get('void')
         
     @visitor.when(WhileStatement)
     def visit(self, node: WhileStatement):
@@ -72,12 +83,20 @@ class SemanticChecker:
         if node.condition.computed_type is not Type.get('bool'):
             raise Exception(f"Given condition is not boolean.")
         
+        node.computed_type = Type.get('void')
         child_context: Context = self.context.make_child()
         child_semantic_checker = SemanticChecker(child_context)
         for line in node.body:
             child_semantic_checker.visit(line)
+            cond= isinstance(line,ReturnStatement) or isinstance(line,IfStatement) or isinstance(line,WhileStatement)
+            if cond:
+                if node.computed_type is not Type.get('void') and line.computed_type is not Type.get('void') :
+                    if node.computed_type is not line.computed_type:
+                        raise Exception('Return type not valid')
+                elif line.computed_type is not Type.get('void'):
+                    node.computed_type= line.computed_type
+                if isinstance(line,ReturnStatement): return
         
-        node.computed_type = Type.get('void')
     
     @visitor.when(BinaryComparer)
     def visit(self, node: BinaryComparer):
@@ -132,14 +151,20 @@ class SemanticChecker:
         has_return = False
         for sub_program in node.body:
             child_semantic_checker.visit(sub_program)
-            if isinstance(sub_program, ReturnStatement):
-                has_return = True
+            if_ret= isinstance(sub_program, IfStatement) and sub_program.computed_type is not Type.get('void')
+            while_ret= isinstance(sub_program, WhileStatement) and sub_program.computed_type
+            ret= isinstance(sub_program, ReturnStatement) or if_ret or while_ret
+            if ret:
+                if not if_ret and not while_ret:
+                    has_return = True
                 if sub_program.computed_type is not function_type:
                     raise Exception(f"Not expected '{sub_program.computed_type}' as return type.")
+        
         if not has_return and function_type != Type.get('void'):
             raise Exception(f"Return statement expected.")
         
         node.computed_type = function_type
+        
     
     @visitor.when(ReturnStatement)
     def visit(self, node: ReturnStatement):

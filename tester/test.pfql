@@ -63,4 +63,23 @@
 # show(group ALL by {PROVINCES, MUNICIPALITIES});
 # show(group ALL by {PROVINCES, PROVINCES});
 # show(filter ALL by { time(1-1-2021, 31-12-2021) } + filter ALL by { time(1-1-2022, 31-12-2022) } );
-show(ALL -  filter ALL by { time(1-1-2022, 31-12-2022) } );
+#show(ALL -  filter ALL by { time(1-1-2022, 31-12-2022) } );
+
+function void test_sc ()
+{
+    if(true) 
+    {
+        int a= 2;
+
+        while(a>0)
+        {   a= 1 ;
+            while (a > 0){
+                a=0;
+              return true;
+            };
+            
+        };
+    };
+};
+
+test_sc();
